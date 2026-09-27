@@ -1,8 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import type { SourceCount } from "@/lib/types";
-import { SourcesChart } from "./sources-chart";
+
+// recharts only after "Показати графік". ssr: false is allowed here: this is a Client Component
+// (in a Server Component it fails the build, see node_modules/next/dist/docs/01-app/02-guides/lazy-loading.md).
+const SourcesChart = dynamic(() => import("./sources-chart").then((m) => m.SourcesChart), {
+  ssr: false,
+  loading: () => <div className="h-64 w-full" />,
+});
 
 type ExportRow = {
   id: string;
