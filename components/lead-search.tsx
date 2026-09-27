@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { debounce } from "lodash";
+// Direct path: Next.js 16 optimizes lodash-es imports by default, but not CJS lodash
+// (node_modules/next/dist/server/config.js, optimizePackageImports defaults).
+import debounce from "lodash/debounce";
 
 type SearchRow = {
   id: string;
