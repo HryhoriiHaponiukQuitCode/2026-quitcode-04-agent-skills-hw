@@ -1,6 +1,5 @@
-ok 11 files changed, 507 insertions(+), 1 deletion(-)
-$ git diff --cached --stat base
-.env.example                          |   8 +++
+$ git add -A && git diff --cached --stat base
+ .env.example                          |   8 +++
  app/api/quotes/[id]/callback/route.ts |  53 ++++++++++++++++
  app/quotes/[id]/page.tsx              | 113 ++++++++++++++++++++++++++++++++++
  app/quotes/actions.ts                 |  79 ++++++++++++++++++++++++
