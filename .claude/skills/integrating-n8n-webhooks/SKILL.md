@@ -13,7 +13,7 @@ description: >-
   редакторі n8n, імпорту/експорту JSON воркфлоу, коду для вузла Code в n8n, інших інтеграцій (Zapier, Make).
 metadata:
   owner: studio-nova-web
-  version: "0.1.2"
+  version: "0.1.3"
 ---
 
 # Next.js ↔ n8n: контракт команди

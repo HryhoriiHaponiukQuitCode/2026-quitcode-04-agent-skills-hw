@@ -92,7 +92,9 @@ export type Quote = {
   documentUrl: string | null;
   createdAt: string; updatedAt: string;
 };
-// + insertQuote(), getQuote(id), getQuoteByRequestKey(key), updateQuote(id, patch)
+// + insertQuote(), getQuote(id), getQuoteByRequestKey(key)
+// + updateQuote(id, patch, ifStatus?): boolean — with ifStatus the check and the write are ONE step
+//   (UPDATE … WHERE id = $1 AND status = $ifStatus); a separate read, then a write, loses a callback in between
 // + claimCallbackKey(key): boolean  — false if the key was already claimed (unique constraint in prod)
 // + releaseCallbackKey(key): void   — undo the claim when processing failed after it
 ```
@@ -109,7 +111,7 @@ import { triggerWorkflow } from "@/lib/n8n/client";
 
 export async function requestQuote(_prev: QuoteFormState, formData: FormData): Promise<QuoteFormState> {
   // Public form: no session on purpose. Otherwise: session + permissions first (server-auth-actions).
-  const parsed = parseQuoteForm(formData); // trim, length limits, budget: finite number >= 0
+  const parsed = parseQuoteForm(formData); // trim, length limits; budget: /^\d+(?:[.,]\d{1,2})?$/ after removing spaces, else a form error (never strip commas: "1500,50" is not 150050)
   if (!parsed.ok) return { status: "invalid", errors: parsed.errors, values: parsed.values };
 
   const quote = await db.insertQuote({
@@ -127,10 +129,9 @@ export async function requestQuote(_prev: QuoteFormState, formData: FormData): P
       { quoteId: quote.id, company: quote.company, description: quote.description, budget: quote.budget },
       { idempotencyKey: quote.requestKey, correlationId: quote.correlationId, callback: true },
     );
-    // Only if still queued: with a fast workflow the callback may already have set "ready".
-    if ((await db.getQuote(quote.id))?.status === "queued") {
-      await db.updateQuote(quote.id, { status: result.ok ? "sent" : "failed" });
-    }
+    // Only if still queued, checked in the same write: with a fast workflow the callback may already have
+    // set "ready", also between a separate read and this write.
+    await db.updateQuote(quote.id, { status: result.ok ? "sent" : "failed" }, "queued");
   });
 
   redirect(`/quotes/${quote.id}`); // works without JavaScript; after() still runs
@@ -231,7 +232,7 @@ export async function POST(request: Request, ctx: RouteContext<"/api/n8n/[event]
     const d = body?.data;
     const shapeOk = body?.version === 1 && typeof d?.jobId === "string" && typeof d?.requestIdempotencyKey === "string"
       && (d.status === "completed" || d.status === "failed")
-      && (body.event === `${event}.completed` || body.event === `${event}.failed`);
+      && body.event === `${event}.${d.status}`; // the event suffix and data.status must agree
     if (!shapeOk || key !== `${d.jobId}:${body.event}`) {
       await db.releaseCallbackKey(key);
       return done(400);
