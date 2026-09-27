@@ -43,7 +43,7 @@ const RULES = [
   [/^docs\/ab-validation\.md$/, "D", "звіт A/B і перенесення прогону B"],
   [/^docs\/ab\//, "D", "повний діф прогону агента від тегу `base` копії"],
   [/^docs\/trigger-evals\.md$/, "E2", "тест спрацювання n8n-скіла, 12 запитів"],
-  [/^docs\/verification\.md$/, "A–C", "звіт перевірки Task A–C, ця таблиця, розділ «Після рев'ю CodeRabbit»"],
+  [/^docs\/verification\.md$/, "A–C", "звіт перевірки Task A–C, ця таблиця, розділи «Після рев'ю CodeRabbit» і «Переписана історія»"],
   [/^docs\/evidence\/bin\//, "A–E", "обв'язка сесій і вимірів, пакування доказів"],
   [/^docs\/evidence\/raw-evidence\.tar\.gz$/, "A–E", "оригінали всіх 167 файлів доказів, зібраних у `summary.md`"],
   [/^docs\/evidence\/task-a\//, "A", "докази Task A"],

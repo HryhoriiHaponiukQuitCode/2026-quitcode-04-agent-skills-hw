@@ -14,10 +14,10 @@
 - **Інструмент і версія:** Claude Code 2.1.282, headless (`claude -p`, stream-json).
 - **Модель і рівень міркування, однакові в усіх 4 прогонах:** `opus` → `claude-opus-5-5` (поле `model`
   в init кожного транскрипту), `--effort high`.
-- **Код:** BASE = `898aa2b`. Це коміт після Task C: три скіли й виправлення Task A, ще без `/quotes` і змін у
-  виклику n8n. Теку скіла для копій B взято з HEAD на момент створення копій, тобто з `8118cd0`.
-  Цей коміт після BASE змінив лише `docs/`, тож тека скіла в ньому та сама, що в `898aa2b`
-  (`git diff 898aa2b 8118cd0 -- .claude` порожній). Скіл у копіях — версії 0.1.0.
+- **Код:** BASE = `8c6fbeb`. Це коміт після Task C: три скіли й виправлення Task A, ще без `/quotes` і змін у
+  виклику n8n. Теку скіла для копій B взято з HEAD на момент створення копій, тобто з `2f4fa4f`.
+  Цей коміт після BASE змінив лише `docs/`, тож тека скіла в ньому та сама, що в `8c6fbeb`
+  (`git diff 8c6fbeb 2f4fa4f -- .claude` порожній). Скіл у копіях — версії 0.1.0.
 - **Копії:** `~/leaddesk-ab/leaddesk-ab-{a1,a2,b1,b2}`. У кожній є коміт `start` з тегом `base`,
   `node_modules` склоновано з робочого репозиторію (`cp -Rc`, без `npm install` з мережі). **Відхилення від
   `../leaddesk-ab-a`:** копії лежать у `~/leaddesk-ab/`, у шляху без пробілів. Так правило deny закриває агенту
@@ -212,21 +212,21 @@
 ## Перенесення прогону B у гілку (фіча)
 
 - **Як переносили:** `git apply --3way docs/ab/b-with-skill.diff` (діф прогону **b1**, без жодної правки),
-  коміт `8c7705f` «feat(quotes): … (run B of Task D)». b1, а не b2: обидва дають 0 FAIL, але сторінка статусу в
+  коміт `c94da6f` «feat(quotes): … (run B of Task D)». b1, а не b2: обидва дають 0 FAIL, але сторінка статусу в
   b1 показує менше даних запиту. `.env.local` і `node_modules` не переносились. Нових залежностей немає,
-  `package.json` не змінювався. Коміт `8c7705f` змінює рівно ті 12 файлів, що й прогін b1, з тими самими
+  `package.json` не змінювався. Коміт `c94da6f` змінює рівно ті 12 файлів, що й прогін b1, з тими самими
   +609/−1 рядками:
   - нові файли — `app/quotes/new/page.tsx`, `app/quotes/[id]/page.tsx`, `app/quotes/actions.ts`,
     `app/api/n8n/[event]/route.ts`, `components/quote-form.tsx`, `components/auto-refresh.tsx`,
     `lib/n8n/client.ts`, `lib/quote-form.ts`, `docs/n8n-integrations.md`;
   - змінені — `lib/db.ts`, `lib/types.ts`, `.env.example`.
-  > Перша копія діфів у `docs/ab/` (коміт `918f623`) була непридатна: хук RTK переписав `git diff > файл` на
+  > Перша копія діфів у `docs/ab/` (коміт `8cf9d4a`) була непридатна: хук RTK переписав `git diff > файл` на
   > свій стислий вивід, і `git apply` відповів «No valid patches in input». Діфи перезняв через
-  > `rtk proxy git diff` (коміт `e763331`) і перевірив `git apply --check`. Ще одна моя помилка по ходу:
+  > `rtk proxy git diff` (коміт `88b2e8b`) і перевірив `git apply --check`. Ще одна моя помилка по ходу:
   > у тій самій команді я запустив `git stash` у копіях. Роботу агентів одразу повернув `git stash pop --index`,
   > і `git diff --cached base` кожної копії байт у байт збігся зі збереженим діфом.
 - **Що довелось доробити руками** (кожне — окремим комітом):
-  1. `b6d5a23` **fix(n8n): форма ліда через `lib/n8n/client` в `after()`**, файли `app/actions.ts` і
+  1. `05aecc2` **fix(n8n): форма ліда через `lib/n8n/client` в `after()`**, файли `app/actions.ts` і
      `docs/n8n-integrations.md`. Старий `submitLead` робив
      `await fetch(process.env.N8N_WEBHOOK_URL!)` без токена, таймаут, ключа й конверта і слав увесь лід разом з
      IP, user agent і `rawPayload` (C3–C8). Тепер він викликає `triggerWorkflow("lead-created", …)` у `after()`.
@@ -235,12 +235,12 @@
      скіла її треба погодити з власником воркфлоу до деплою. Записано в `docs/n8n-integrations.md`.
      По ходу C14 зачепився за `error.name` у `console.error` (шаблон `\bname\b`). Перевірку не послаблював:
      переписав лог, як у шаблоні скіла, де назва помилки йде в лог через змінну.
-  2. `9ab228f` **chore(env): прибрати `/webhook-test/` з `.env.example`**, файл `.env.example`. Змінну `N8N_WEBHOOK_URL` більше
+  2. `6832770` **chore(env): прибрати `/webhook-test/` з `.env.example`**, файл `.env.example`. Змінну `N8N_WEBHOOK_URL` більше
      ніхто не читає (C1).
 
-  Після трьох комітів — перенесення `8c7705f` і двох доведень `b6d5a23`, `9ab228f` — **код гілки поза прогоном B
+  Після трьох комітів — перенесення `c94da6f` і двох доведень `05aecc2`, `6832770` — **код гілки поза прогоном B
   змінено лише в `app/actions.ts` і `.env.example`**. Усі інші файли застосунку, яких торкається Task D, — рівно
-  файли прогону b1. Окремо, у коміті `5b15a8b`, змінено сам скіл (v0.1.1: `SKILL.md`, `scripts/check-contract.mjs`,
+  файли прогону b1. Окремо, у коміті `eab812c`, змінено сам скіл (v0.1.1: `SKILL.md`, `scripts/check-contract.mjs`,
   `scripts/selftest-check-contract.mjs`).
 
   **Після рев'ю CodeRabbit** (PR #10) доправлено ще два файли прогону b1 — `components/quote-form.tsx` (доступні
