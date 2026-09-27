@@ -175,4 +175,110 @@ Task D, крок 1: «BASE узято запізно»). Обидва діфи �
 
 ## Task C — `integrating-n8n-webhooks`
 
-_(заповнюється після Task C)_
+**BASE для Task D: `898aa2b`** (`skills: add integrating-n8n-webhooks (contract, references, scripts)`).
+У ньому є виправлення Task A й усі три скіли, але ще немає ні `/quotes`, ні переробленого виклику n8n:
+`app/actions.ts:55` досі робить `await fetch(process.env.N8N_WEBHOOK_URL!, …)` без заголовків і таймауту.
+Від `main` у `app/actions.ts` змінено лише `authorizeLead` з Task A (`git diff --stat main 898aa2b -- app/actions.ts`
+→ 15+/1−). Тож прогін A не отримує від BASE жодного шматка контракту.
+
+### Що залишилось у `SKILL.md`, а що пішло в `references/`
+
+Записка має 398 рядків і 12 розділів. `SKILL.md` має 108 рядків: він вантажиться в контекст щоразу, коли скіл
+спрацьовує, тому в ньому лише те, що потрібне в кожній задачі:
+
+| У `SKILL.md` | Чому тут |
+|---|---|
+| `description` (981 символ): що робить скіл, «Use when», фрази команди («надішли лід у n8n», «n8n викличе ендпоінт, коли буде готово», «n8n повертає 403 / 524»), «Не для» | За ним агент вирішує, чи вантажити скіл. Тіло до цього моменту не прочитане |
+| Контракт однією таблицею: змінні, хто говорить з n8n, запит, повтори, режим, колбек по кроках, журнали, runtime | Потрібен у кожній задачі. Без нього агент пише «як звик» |
+| «Як робимо» з прямими посиланнями на кожен reference | Одне посилання на кожен файл, без ланцюжків |
+| Чекліст із 8 пунктів, правила зупинки, Verify з командами | Ці речі не можна пропустити |
+| Посилання на `server-auth-actions` і `server-after-nonblocking` за id | Правила Vercel не переписані |
+
+| У `references/` | Що там |
+|---|---|
+| `contract.md` (143 р.) | Деталі й «чому»: змінні, запит, повтори, колбек по кроках із кодами, ідемпотентність, журнали, ліміти |
+| `response-modes.md` (61 р.) | Режими Webhook, 100 с / 524, що означає кожен код відповіді, тестовий vs production URL, мок |
+| `code-templates.md` (249 р.) | `lib/n8n/client.ts`, сховище, Server Action з `after()` + `redirect()`, колбек-роут `app/api/n8n/[event]/route.ts` |
+| `n8n-setup.md` (27 р.) | Налаштування воркфлоу на боці n8n текстом для клієнта |
+
+Між файлами `references/` посилань немає (перевірено grep: 0). Розділи записки 11 («Відомі пастки») і 12
+(«Поза межами») не скопійовані окремо. Вони стали правилами зупинки, пунктами чекліста й рядком «Не для» в
+`description`.
+
+**Правила зупинки** (без винятків «якщо задача потребує»):
+- тестовий URL `/webhook-test/` у коді чи `.env.example`;
+- секрет у Client Component, `NEXT_PUBLIC_`, query string, журналі чи відповіді;
+- форма має чекати воркфлоу, довшого за ~10 с;
+- колбек без підпису чи з іншою схемою підпису;
+- зміна сенсу поля конверта;
+- потрібні справжні значення змінних, нова npm-залежність або зміна воркфлоу клієнта;
+- 403/404 на production-URL.
+
+### `scripts/`
+
+| Скрипт | Що робить |
+|---|---|
+| `check-contract.mjs` | Node без залежностей, 15 перевірок C1–C15: PASS/FAIL/N/A, для FAIL — `файл:рядок`, exit 1 при FAIL, 2 при помилці аргументів. Підтримує `--root`, `--changed-since <ref>` (змінені рядки + нові неіндексовані файли) і `--help`. Код перевіряється без коментарів; C1/C2 дивляться і в коментарі теж |
+| `selftest-check-contract.mjs` | Доводить, що перевірки справжні (нижче) |
+| `send-signed-callback.mjs` | Матриця колбеків проти запущеного роуту, секрет з `--env-file`, не друкує його. Поки перевірено лише `--help` і вихід без секрету (exit 2): роуту ще немає, прогін буде в Task D |
+| `mock-n8n.mjs` | Копія `tools/mock-n8n.mjs` байт у байт |
+
+### Вивід на `main`
+
+Повний вивід: [`docs/evidence/task-c/check-contract-main.txt`](evidence/task-c/check-contract-main.txt).
+
+```
+$ mkdir ../leaddesk-main && git archive main | tar -x -C ../leaddesk-main
+$ node .claude/skills/integrating-n8n-webhooks/scripts/check-contract.mjs --root ../leaddesk-main; echo "exit=$?"
+C1   FAIL no test webhook URL (/webhook-test/) in code or .env.example
+       .env.example:6  test webhook URL
+C3   FAIL requests to n8n only from lib/n8n/client.ts
+       app/actions.ts:54  fetch to n8n outside lib/n8n/client.ts
+C4   FAIL … app/actions.ts:1  first statement is not import "server-only"
+C5   FAIL … app/actions.ts:54  fetch without AbortSignal.timeout
+C6   FAIL … app/actions.ts:54  missing header(s): x-n8n-token, idempotency-key, x-correlation-id
+C7   FAIL … app/actions.ts:54  body is not the { version: 1, event, data } envelope
+C8   FAIL … app/actions.ts:54  Server Action waits for n8n: no after()
+C9–C12 N/A (колбек-роуту на main немає)
+C15  FAIL … N8N_WEBHOOK_BASE_URL / N8N_WEBHOOK_TOKEN / N8N_CALLBACK_SECRET / APP_BASE_URL is missing
+Summary: 3 PASS, 8 FAIL, 4 N/A
+exit=1
+```
+
+На поточній гілці результат такий самий: 3 PASS, 8 FAIL, 4 N/A. Task A виклику n8n не торкався.
+
+### Перевірки, яким на `main` нема що дивитись: навмисно поганий роут
+
+Тимчасова тека з одним роутом: `JSON.parse` до перевірки підпису, порівняння `===`, без часу, без ключа,
+`console.log` тіла. Теку після перевірки видалено. Результат —
+[`bad-callback.txt`](evidence/task-c/bad-callback.txt):
+
+```
+C9   FAIL  app/api/n8n/[event]/route.ts:5  JSON.parse before the signature check
+C10  FAIL  …:1 no timingSafeEqual · …:7 signature compared with === / !==
+C11  FAIL  …:1 x-n8n-timestamp is not read
+C12  FAIL  …:1 idempotency-key is not read
+C14  FAIL  …:10 log call may print a body, personal data or a secret
+Summary: 3 PASS, 5 FAIL, 7 N/A · exit=1
+```
+
+### Selftest: атака на власний скрипт
+
+`selftest-check-contract.mjs` бере блоки `ts` прямо з `references/code-templates.md` і складає з них
+проєкт: 15 з 15 PASS, exit 0. Отже шаблони, які скіл дає агенту, самі проходять перевірку. Далі йдуть 15
+фікстур, кожна з яких ламає рівно одну перевірку, і кожна її ловить: FAIL, exit 1. Ще 3 кейси перевіряють
+`--changed-since`. Вивід: [`selftest.txt`](evidence/task-c/selftest.txt), «all expectations met», exit 0.
+Супутні FAIL (у C3 — ще C4/C6/C7, у C10 — ще C9) очікувані: прямий `fetch` поза клієнтом справді порушує
+й ці пункти.
+
+Selftest знайшов у `check-contract.mjs` три баги, які я виправив до коміту:
+1. Коментар `// fetch to n8n` рахувався як код. Тепер код перевіряється без коментарів, а C1/C2 дивляться
+   в сирий текст: тестовий URL у коментарі — теж витік.
+2. `--changed-since` порівнював шляхи `/var/…` і `/private/var/…` (macOS) і не знаходив жодного зміненого
+   файлу. Тепер обидва шляхи проходять через `realpath`.
+3. Очікування в самому selftest шукало `app/legacy.ts` в усьому виводі, і його знаходив рядок заголовка.
+   Тепер пошук іде лише по рядках знахідок `файл:рядок`.
+
+### На фінальному коді
+
+_(після Task D — див. `docs/ab-validation.md`)_
