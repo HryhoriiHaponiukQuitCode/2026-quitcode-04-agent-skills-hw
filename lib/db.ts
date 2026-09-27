@@ -429,10 +429,12 @@ export const db = {
     });
   },
 
-  updateQuote(id: string, patch: Partial<Pick<Quote, "status" | "documentUrl">>) {
+  // With ifStatus the check and the write are one step (UPDATE … WHERE status = $ifStatus in production):
+  // false if the record is missing or its status has changed meanwhile.
+  updateQuote(id: string, patch: Partial<Pick<Quote, "status" | "documentUrl">>, ifStatus?: Quote["status"]) {
     return query("updateQuote", () => {
       const quote = store.quotes.find((q) => q.id === id);
-      if (!quote) return false;
+      if (!quote || (ifStatus !== undefined && quote.status !== ifStatus)) return false;
       Object.assign(quote, patch, { updatedAt: new Date().toISOString() });
       return true;
     });

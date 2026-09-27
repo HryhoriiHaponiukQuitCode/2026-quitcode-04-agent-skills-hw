@@ -43,10 +43,9 @@ export async function requestQuote(
     } catch {
       console.error(JSON.stringify({ n8n: "out", event: "quote-request", correlationId: quote.correlationId, status: "not-configured" }));
     }
-    // Only if still queued: with a fast workflow the callback may already have set "ready".
-    if ((await db.getQuote(quote.id))?.status === "queued") {
-      await db.updateQuote(quote.id, { status: ok ? "sent" : "failed" });
-    }
+    // Only if still queued, checked in the same write: with a fast workflow the callback may already have
+    // set "ready", also between a separate read and this write.
+    await db.updateQuote(quote.id, { status: ok ? "sent" : "failed" }, "queued");
   });
 
   redirect(`/quotes/${quote.id}`); // works without JavaScript; after() still runs
