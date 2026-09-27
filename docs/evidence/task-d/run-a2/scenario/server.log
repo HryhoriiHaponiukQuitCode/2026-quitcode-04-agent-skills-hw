@@ -1,0 +1,20 @@
+▲ Next.js 16.3.5
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.102:3000
+✓ Ready in 55ms
+⚠ Warning: Next.js ignored package-lock.json in /Users/hryhorii_haponiuk because it is outside the current Git repository (/Users/hryhorii_haponiuk/leaddesk-ab/leaddesk-ab-a2).
+ To use this directory, set `outputFileTracingRoot` in your Next.js config.
+
+✓ Running next.config.ts took 12ms
+⚠ Missing `origin` header from a forwarded Server Actions request.
+db:insertQuote: 1
+n8n rejected quote quote_0a59c306-3806-48d8-a072-982b72d3712b: HTTP 404
+db:completeQuote: 1
+db:getQuote: 1
+db:getQuote: 2
+db:getQuote: 3
+db:getQuote: 4
+db:getQuote: 5
+db:getQuote: 6
+db:getQuote: 7
+db:getQuote: 8

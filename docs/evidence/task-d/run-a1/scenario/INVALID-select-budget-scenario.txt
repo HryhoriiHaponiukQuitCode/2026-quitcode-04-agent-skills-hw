@@ -1,0 +1,31 @@
+# scenario · copy leaddesk-ab-a1 9b151f1+worktree · build DZTpKf6x50CYCZIuX-S8W · server pid 59439 · 2026-09-27T14:13:07Z
+mock: tools/mock-n8n.mjs --mode respond-202 --delay 5000 (from the working repo, --env-file=.env.local of the copy)
+.env.local keys (names only): N8N_WEBHOOK_URL N8N_QUOTE_WEBHOOK_URL APP_BASE_URL N8N_WEBHOOK_TOKEN N8N_CALLBACK_SECRET 
+GET /quotes/new -> 200
+form fields posted: $ACTION_REF_1 $ACTION_1:0 $ACTION_1:1 $ACTION_KEY company email description budget
+no-JS POST /quotes/new -> HTTP 200 in 0.033177 s (TTFB 0.033010 s)
+redirect / status page: <none>
+mock log right after the POST:
+  | [mock-n8n] 2026-09-27T14:13:06.761Z listening on http://127.0.0.1:5678  mode=respond-202  delay=5000 ms  cloud-timeout=off
+  | [mock-n8n] 2026-09-27T14:13:06.762Z production URLs: POST http://127.0.0.1:5678/webhook/<path>
+  | [mock-n8n] 2026-09-27T14:13:06.762Z test URLs: not registered (start with --listen to open them for 120 s)
+  | [mock-n8n] 2026-09-27T14:13:06.762Z header auth: x-n8n-token required (N8N_WEBHOOK_TOKEN is set)
+  | [mock-n8n] 2026-09-27T14:13:06.762Z callbacks: signed, sent to the request's callbackUrl after 5000 ms (async modes)
+mock log after the workflow (--mode respond-202 --delay 5000), 22 s after the POST:
+  | [mock-n8n] 2026-09-27T14:13:06.761Z listening on http://127.0.0.1:5678  mode=respond-202  delay=5000 ms  cloud-timeout=off
+  | [mock-n8n] 2026-09-27T14:13:06.762Z production URLs: POST http://127.0.0.1:5678/webhook/<path>
+  | [mock-n8n] 2026-09-27T14:13:06.762Z test URLs: not registered (start with --listen to open them for 120 s)
+  | [mock-n8n] 2026-09-27T14:13:06.762Z header auth: x-n8n-token required (N8N_WEBHOOK_TOKEN is set)
+  | [mock-n8n] 2026-09-27T14:13:06.762Z callbacks: signed, sent to the request's callbackUrl after 5000 ms (async modes)
+callback matrix (send-signed-callback.mjs --url http://127.0.0.1:3000/api/quotes//callback, secret via --env-file):
+  | send-signed-callback · http://127.0.0.1:3000/api/quotes//callback · event quote-request · success cases skipped (no --request-key)
+  | ok   unknown event in the path                expected 404, got 404
+  | FAIL wrong content-type (text/plain)          expected 415, got 404
+  | FAIL body larger than 64 KB                   expected 413, got 404
+  | FAIL timestamp 301 s in the past              expected 401, got 404
+  | FAIL timestamp 301 s in the future            expected 401, got 404
+  | FAIL wrong signature                          expected 401, got 404
+  | FAIL body reformatted after signing           expected 401, got 404
+  | 1/7 as expected
+server log: 9 lines; lines with the submitted email / company / description: 0
+server log lines mentioning n8n / quote / callback:

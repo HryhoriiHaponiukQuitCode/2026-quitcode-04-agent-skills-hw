@@ -1,0 +1,15 @@
+ok 12 files changed, 609 insertions(+), 1 deletion(-)
+$ git diff --cached --stat base
+.env.example                 |  11 ++++
+ app/api/n8n/[event]/route.ts | 121 +++++++++++++++++++++++++++++++++++++++++++
+ app/quotes/[id]/page.tsx     |  84 ++++++++++++++++++++++++++++++
+ app/quotes/actions.ts        |  53 +++++++++++++++++++
+ app/quotes/new/page.tsx      |  30 +++++++++++
+ components/auto-refresh.tsx  |  16 ++++++
+ components/quote-form.tsx    |  59 +++++++++++++++++++++
+ docs/n8n-integrations.md     |  16 ++++++
+ lib/db.ts                    |  72 ++++++++++++++++++++++++-
+ lib/n8n/client.ts            |  72 +++++++++++++++++++++++++
+ lib/quote-form.ts            |  56 ++++++++++++++++++++
+ lib/types.ts                 |  20 +++++++
+ 12 files changed, 609 insertions(+), 1 deletion(-)

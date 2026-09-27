@@ -1,0 +1,6 @@
+claude: 2.1.282 (Claude Code)
+model: opus · effort: high · cwd: /Users/hryhorii_haponiuk/leaddesk-ab/probe
+prompt sha256: 82887b506d2bd3e7fca8d3f3ae41caeefc66faf2da7df1af6d4973fcfd4d508e
+flags: --setting-sources project --strict-mcp-config --permission-mode acceptEdits --permission-prompts none --allowedTools Skill,Read,Grep,Glob,Edit,Write,Bash(npm run lint),Bash(npm run build),Bash(npx tsc --noEmit),Bash(git status*),Bash(git diff*),Bash(node .claude/skills/integrating-n8n-webhooks/scripts/check-contract.mjs*) --disallowedTools WebFetch,WebSearch,NotebookEdit,Read(//Users/hryhorii_haponiuk/Desktop/**),Read(~/.claude/**),Read(//private/tmp/**),Read(//tmp/**),Read(//private/var/folders/**)
+started: 2026-09-27T13:56:04Z
+exit: 0 · wall: 26s

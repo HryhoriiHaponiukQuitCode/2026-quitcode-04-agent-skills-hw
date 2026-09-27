@@ -1,0 +1,15 @@
+ok 12 files changed, 499 insertions(+), 1 deletion(-)
+$ git diff --cached --stat base
+.env.example                          |  8 +++
+ app/api/quotes/[id]/callback/route.ts | 32 ++++++++++++
+ app/quotes/[id]/page.tsx              | 93 +++++++++++++++++++++++++++++++++++
+ app/quotes/actions.ts                 | 36 ++++++++++++++
+ app/quotes/layout.tsx                 | 20 ++++++++
+ app/quotes/new/page.tsx               | 23 +++++++++
+ components/quote-form.tsx             | 63 ++++++++++++++++++++++++
+ components/quote-status-refresher.tsx | 16 ++++++
+ lib/db.ts                             | 50 ++++++++++++++++++-
+ lib/quote-form.ts                     | 47 ++++++++++++++++++
+ lib/quotes.ts                         | 83 +++++++++++++++++++++++++++++++
+ lib/types.ts                          | 29 +++++++++++
+ 12 files changed, 499 insertions(+), 1 deletion(-)

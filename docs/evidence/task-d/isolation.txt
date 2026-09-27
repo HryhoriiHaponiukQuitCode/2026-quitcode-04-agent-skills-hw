@@ -1,0 +1,45 @@
+# BASE 898aa2b · копії в ~/leaddesk-ab/leaddesk-ab-{a1,a2,b1,b2}
+$ git -C leaddesk-ab-a1 log --oneline --decorate
+9b151f1 (HEAD -> main, tag: base) start
+$ git -C leaddesk-ab-a2 log --oneline --decorate
+e4e3251 (HEAD -> main, tag: base) start
+$ git -C leaddesk-ab-b1 log --oneline --decorate
+18bed3a (HEAD -> main, tag: base) start
+$ git -C leaddesk-ab-b2 log --oneline --decorate
+fb2f813 (HEAD -> main, tag: base) start
+$ find leaddesk-ab-* -name SKILL.md -not -path "*/node_modules/*"
+leaddesk-ab-b1/.claude/skills/integrating-n8n-webhooks/SKILL.md
+leaddesk-ab-b2/.claude/skills/integrating-n8n-webhooks/SKILL.md
+$ ls -A leaddesk-ab-* | grep -xE "tools|materials|docs|README.md|.coderabbit.yaml|.github" || echo "no hints - ok"
+no hints - ok
+$ grep -rlE "x-n8n-token|timingSafeEqual|idempotency-key" leaddesk-ab-a1 --exclude-dir=node_modules || echo "no contract - ok"
+no contract - ok
+$ grep -rlE "x-n8n-token|timingSafeEqual|idempotency-key" leaddesk-ab-a2 --exclude-dir=node_modules || echo "no contract - ok"
+no contract - ok
+$ grep -rlE "x-n8n-token|timingSafeEqual|idempotency-key" leaddesk-ab-b1 --exclude-dir=node_modules  # B: лише файли скіла
+leaddesk-ab-b1/.claude/skills/integrating-n8n-webhooks/references/response-modes.md
+leaddesk-ab-b1/.claude/skills/integrating-n8n-webhooks/references/contract.md
+leaddesk-ab-b1/.claude/skills/integrating-n8n-webhooks/references/code-templates.md
+leaddesk-ab-b1/.claude/skills/integrating-n8n-webhooks/references/n8n-setup.md
+leaddesk-ab-b1/.claude/skills/integrating-n8n-webhooks/scripts/send-signed-callback.mjs
+leaddesk-ab-b1/.claude/skills/integrating-n8n-webhooks/scripts/selftest-check-contract.mjs
+leaddesk-ab-b1/.claude/skills/integrating-n8n-webhooks/scripts/mock-n8n.mjs
+leaddesk-ab-b1/.claude/skills/integrating-n8n-webhooks/scripts/check-contract.mjs
+leaddesk-ab-b1/.claude/skills/integrating-n8n-webhooks/SKILL.md
+$ grep -rlE "x-n8n-token|timingSafeEqual|idempotency-key" leaddesk-ab-b2 --exclude-dir=node_modules  # B: лише файли скіла
+leaddesk-ab-b2/.claude/skills/integrating-n8n-webhooks/references/response-modes.md
+leaddesk-ab-b2/.claude/skills/integrating-n8n-webhooks/references/contract.md
+leaddesk-ab-b2/.claude/skills/integrating-n8n-webhooks/references/code-templates.md
+leaddesk-ab-b2/.claude/skills/integrating-n8n-webhooks/references/n8n-setup.md
+leaddesk-ab-b2/.claude/skills/integrating-n8n-webhooks/scripts/send-signed-callback.mjs
+leaddesk-ab-b2/.claude/skills/integrating-n8n-webhooks/scripts/selftest-check-contract.mjs
+leaddesk-ab-b2/.claude/skills/integrating-n8n-webhooks/scripts/mock-n8n.mjs
+leaddesk-ab-b2/.claude/skills/integrating-n8n-webhooks/scripts/check-contract.mjs
+leaddesk-ab-b2/.claude/skills/integrating-n8n-webhooks/SKILL.md
+$ grep -rliE "n8n" leaddesk-ab-a1 --exclude-dir=node_modules --exclude-dir=.git
+leaddesk-ab-a1/app/actions.ts
+leaddesk-ab-a1/.env.example
+$ diff -rq leaddesk-ab-a1 leaddesk-ab-b1 -x node_modules -x .git
+Only in leaddesk-ab-b1: .claude
+$ grep -rlE "x-n8n-token|timingSafeEqual" leaddesk-ab-a1/node_modules --include=*.md -l | head
+(docs next: 0 файлів з 'n8n')
