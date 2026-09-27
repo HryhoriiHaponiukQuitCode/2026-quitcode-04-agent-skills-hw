@@ -17,6 +17,9 @@ export default async function DashboardPage() {
   // Stats is the slowest query (1.2 s): start it now, stream the cards behind <Suspense>,
   // and do not hold the table and toolbar for it (rule async-suspense-boundaries).
   const statsPromise = getLeadStats(workspace.id);
+  // If the awaits below throw first, nobody awaits statsPromise: mark its rejection handled.
+  // <Stats> still awaits the original promise and gets the error.
+  statsPromise.catch(() => {});
   const [leads, sources] = await Promise.all([getLeads(workspace.id), getSourceBreakdown(workspace.id)]);
 
   const rows = leads.map(({ id, fullName, company, status, createdAt }) => ({
