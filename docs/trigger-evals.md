@@ -9,13 +9,15 @@
   [`run-readonly-session.sh`](evidence/bin/run-readonly-session.sh): `--setting-sources project --strict-mcp-config`,
   `--allowedTools Skill,Read,Grep,Glob`, `--disallowedTools Edit,Write,NotebookEdit,Bash`. Агент міг лише читати.
 - **Копія:** `~/leaddesk-ab/leaddesk-trig`, `git archive` коміту `8118cd0` без `tools/`, `materials/`, `docs/`,
-  `README.md`, `.coderabbit.yaml`, `.github/`. Скілів у ній **три**: `integrating-n8n-webhooks`,
+  `README.md`, `.coderabbit.yaml`, `.github/`. n8n-скіл у копії — версії 0.1.0. У v0.1.1 `description` не
+  змінювався: `git diff 8118cd0 HEAD -- .claude/skills/integrating-n8n-webhooks/SKILL.md` показує лише рядок
+  `version`, тож результат стосується й поточної версії. Скілів у ній **три**: `integrating-n8n-webhooks`,
   `building-client-form`, `vercel-react-best-practices`. Так тест бачить і конкуренцію між скілами, а не лише
   «скіл або нічого». `init.skills` у кожному транскрипті містить `integrating-n8n-webhooks`: скіл був
   доступний у всіх 12 сесіях.
 - **Критерій «спрацював»:** у транскрипті є виклик інструмента `Skill` з `integrating-n8n-webhooks`. Окремо
   перевірено, що негативні запити не читали файлів скіла напряму через `Read`.
-- **Запити:** файли [`prompts/`](evidence/task-e/summary.md), по одному на сесію. Звіт по кожній сесії —
+- **Запити:** 12 файлів `task-e/prompts/*.txt`, по одному на сесію. Це розділи [`task-e/summary.md`](evidence/task-e/summary.md). Звіт по кожній сесії —
   `session-report.mjs`, тексти й повні транскрипти — у [`task-e/summary.md`](evidence/task-e/summary.md) і
   `raw-evidence.tar.gz`.
 

@@ -1,7 +1,18 @@
 # Перевірка (Task A–C)
 
-> Сюди — лише те, що справді сталося. Кожне число має файл-джерело в `docs/evidence/`; сирі
-> транскрипти сесій — `docs/evidence/raw-evidence.tar.gz` (оригінали всіх файлів, зібраних у `summary.md`). Прогони A/B і фіча — `docs/ab-validation.md`.
+> Сюди — лише те, що справді сталося. Кожне число має файл-джерело в `docs/evidence/`. Прогони A/B і фіча —
+> `docs/ab-validation.md`, тест спрацювання — `docs/trigger-evals.md`.
+>
+> **Як читати посилання на докази.** Щоб PR умістився в ліміт CodeRabbit, дрібні файли кожної задачі чи прогону
+> зібрано в один `summary.md` тієї самої теки (`docs/evidence/bin/pack-evidence.mjs`). Файл, названий нижче
+> (`00-baseline-main.txt`, `attack-after.txt`, `install.txt`…), — це розділ `summary.md` з таким самим
+> заголовком, наприклад `` ## `task-a/attack-after.txt` ``. Оригінали всіх 167 файлів і сирі транскрипти —
+> `docs/evidence/raw-evidence.tar.gz`.
+
+## Усі змінені файли гілки
+
+<!-- changed-files:start -->
+<!-- changed-files:end -->
 
 - **Інструмент і версія, модель:** Claude Code 2.1.282 · `claude-opus-5-5` (`--model opus`), effort `high`
   — з поля `model` в `init` кожного транскрипту
@@ -22,8 +33,8 @@
 ## Скіли видно у свіжій сесії
 
 - Як перевіряли: `claude -p "/context"` з кореня репозиторію, двічі: зі звичайними налаштуваннями
-  (`docs/evidence/task-a/summary.md`) і з `--setting-sources project --strict-mcp-config`
-  (`…/context-project-only.txt`).
+  (`context-after-install.txt`) і з `--setting-sources project --strict-mcp-config`
+  (`context-project-only.txt`). Обидва — розділи `docs/evidence/task-a/summary.md`.
 
 | Skill | Звідки | Примітка |
 |---|---|---|
@@ -49,8 +60,8 @@
 заміру: `npm run build` → `next start -p 3000` → прогрів → 3 × `curl` з cookie
 `leaddesk_session=demo-u_olena` (TTFB і total) → лічильники `db:<запит>` з журналу сервера за **один**
 запит сторінки → розмір HTML і RSC → входження полів ліда в HTML → сума JS-скриптів, які HTML сторінки
-вантажить при відкритті (сирий розмір і gzip). Файли `docs/evidence/task-a/summary.md` …
-`07-async-suspense-boundaries.txt`; у першому рядку кожного — SHA, `BUILD_ID` збірки й PID сервера.
+вантажить при відкритті (сирий розмір і gzip). Виводи `00-baseline-main.txt` … `07-async-suspense-boundaries.txt` —
+розділи `docs/evidence/task-a/summary.md`; у першому рядку кожного — SHA, `BUILD_ID` збірки й PID сервера.
 
 > **Заміри знято двічі — і ось чому.** Перша серія йшла в робочому дереві: скрипт стартував
 > `npx next start` і зупиняв його `kill` обгортки `npx`. Пізніше (Task B) з'ясувалось, що `next start`
@@ -65,14 +76,15 @@
 | Правило (id) | Коміт | Файли | Що змінилось | Було | Стало | Як міряли |
 |---|---|---|---|---|---|---|
 | `async-parallel` | `e289c5d` | `app/dashboard/page.tsx` | `getLeads`/`getLeadStats`/`getSourceBreakdown` — `Promise.all` замість трьох `await` підряд | TTFB **2,219 / 2,220 / 2,217 с** | TTFB **1,416 / 1,419 / 1,413 с** | `curl`, 3 прогони, `00-*` → `01-*` |
-| `server-cache-react` | `e84f206` | `lib/data.ts` + 4 виклики | `getCurrentUser` обгорнуто в `cache()`; `getWorkspace(slug)` приймає рядок, а не інлайн `{ slug }` (з об'єктом `cache` щоразу промахувався) | `db:getUserBySession` **3**, `db:getWorkspace` **3** на запит | **1** і **1** | лічильники `db:*` за один запит, `01-*` → `02-*` |
+| `server-cache-react` | `e84f206` | `lib/data.ts`; виклики `getWorkspace(user.workspaceSlug)` у `app/dashboard/layout.tsx`, `app/dashboard/page.tsx`, `app/dashboard/leads/[id]/page.tsx`, `components/dashboard-header.tsx` | `getCurrentUser` обгорнуто в `cache()`; `getWorkspace(slug)` приймає рядок, а не інлайн `{ slug }` (з об'єктом `cache` щоразу промахувався) | `db:getUserBySession` **3**, `db:getWorkspace` **3** на запит | **1** і **1** | лічильники `db:*` за один запит, `01-*` → `02-*` |
 | `server-serialization` | `281ff34` | `app/dashboard/page.tsx`, `components/leads-table.tsx` | у `LeadsTable` — `LeadRow` (5 полів), а не весь `Lead` | HTML **424 592 Б**, RSC **315 197 Б**; `rawPayload`, `internalNotes`, `ipAddress` — по **172** входження в HTML | HTML **111 377 Б**, RSC **31 257 Б**; **0** входжень | `curl … \| wc -c`, `grep -o <поле>`, `02-*` → `03-*` |
 | `bundle-conditional` | `211f8fe` | `components/leads-toolbar.tsx` | `exceljs` — `await import("exceljs")` усередині обробника кліку | JS на відкритті **1 871 692 Б** (gzip 536 006) | **941 001 Б** (gzip 282 121) | сума скриптів з HTML, `03-*` → `04-*` |
 | `bundle-dynamic-imports` | `7a55dd8` | `components/leads-toolbar.tsx` | `SourcesChart` (recharts) — `next/dynamic` з `ssr: false` у Client Component | **941 001 Б**, 10 скриптів | **587 212 Б** (gzip 181 271), 9 скриптів | те саме, `04-*` → `05-*` |
 | `server-auth-actions` | `01464c9` | `app/actions.ts` | `updateLeadStatus` / `deleteLead`: сесія, належність ліда до workspace користувача, статус із `LEAD_STATUSES` — **усередині** дії | від імені `u_marta` (інший workspace) `updateLeadStatus(lead_0001)` → **HTTP 200, статус змінився** | **HTTP 500, статус не змінився** | прямий POST з `Next-Action`, `attack-before.txt` → `attack-after.txt` |
 | `async-suspense-boundaries` | `3d3cf84` | `app/dashboard/page.tsx` | запит статистики стартує одразу, картки стрімляться за `<Suspense>` зі скелетоном | TTFB **1,412 с** | TTFB **0,612 / 0,613 / 0,610 с**; total 1,407 с | `curl`, 3 прогони, `05-*` → `07-*` |
 
-**Разом по дашборду:** TTFB 2,22 → **0,61 с**, повна сторінка 2,22 → **1,41 с**, HTML 425 → 113 КБ,
+**Разом по дашборду:** TTFB 2,22 → **0,61 с**, повна сторінка 2,22 → **1,41 с**, HTML 425 → 113 КБ (113 238 Б після
+Suspense; 111 377 Б одразу після `server-serialization`),
 JS на відкритті 1,87 МБ → **0,59 МБ** (gzip 536 → 181 КБ), жодного поля `rawPayload`/`internalNotes`/`ipAddress`
 у браузері, запити сесії 3 → 1.
 
@@ -97,7 +109,7 @@ JS на відкритті 1,87 МБ → **0,59 МБ** (gzip 536 → 181 КБ), 
 
 | Порада | Що зробили | Чому |
 |---|---|---|
-| `bundle-barrel-imports` для `lodash` | застосував (`035118b`), **відкотив** (`e8c2cb5`) | JS до і після — **587 212 Б байт у байт** (`05-*` / `06-*`). Next.js 16 уже переписує `import { debounce } from "lodash"` на `lodash/debounce` вбудованим `modularizeImports` (`node_modules/next/dist/server/config.js:1117`). Помилились і рев'ю-агент (знахідка 8), і перша редакція `docs/skill-review.md` — обидва дивились лише на `optimizePackageImports`. Виправлено в рев'ю, п. 5 |
+| `bundle-barrel-imports` для `lodash` | застосував (`035118b`, `components/lead-search.tsx`), **відкотив** (`e8c2cb5`); у підсумковому діфі гілки цього файлу немає | JS до і після — **587 212 Б байт у байт** (`05-*` / `06-*`). Next.js 16 уже переписує `import { debounce } from "lodash"` на `lodash/debounce` вбудованим `modularizeImports` (`node_modules/next/dist/server/config.js:1117`). Помилились і рев'ю-агент (знахідка 8), і перша редакція `docs/skill-review.md` — обидва дивились лише на `optimizePackageImports`. Виправлено в рев'ю, п. 5 |
 | `bundle-dynamic-imports` з `ssr: false` | застосував **лише** в Client Component (`leads-toolbar.tsx` має `"use client"`) | `lazy-loading.md:94`: у Server Component `ssr: false` — помилка збірки |
 | `server-after-nonblocking` для `submitLead` (знахідка 6) | **відкладено до Task D** | це виклик n8n; walkthrough вимагає привести його до контракту разом із фічею, а не до BASE — інакше прогін A отримає частину контракту задарма |
 | `client-swr-dedup`, `rerender-*`, `js-*` (знахідки 11–16) | не застосовано | дрібні або без вимірного ефекту на наших ~170 рядках; `client-swr-dedup` — нова залежність (`swr`), а `AGENTS.md` вимагає «так» на кожен пакет |
@@ -136,7 +148,8 @@ JS на відкритті 1,87 МБ → **0,59 МБ** (gzip 536 → 181 КБ), 
 enhancement»). У зв'язці з `useActionState` на цьому динамічному маршруті це не так. Скіл виправлено
 (`9297071`, v0.1.1): id запису — приховане поле з авторизацією в дії; `bind` з `useActionState` не
 використовувати. Захисту `bind` однаково не дає: агент сам написав у run-1, що «the id is still
-client-controlled, so check it here». Діф обох спроб — `run-1/agent.diff`, `run-2/agent.diff`.
+client-controlled, so check it here». Діфи обох спроб — розділи `task-b/run-1/agent.diff` і `task-b/run-2/agent.diff`
+у `docs/evidence/task-b/summary.md`.
 
 **Пункти Verify зі скіла — run-2** (`docs/evidence/task-b/summary.md`, скрипт `verify-note-form.sh`;
 «без JS» — це серверна `<form>` з її прихованими полями `$ACTION_*` і `leadId`, надіслана як multipart без
@@ -151,9 +164,11 @@ client-controlled, so check it here». Діф обох спроб — `run-1/age
 | дія від імені користувача іншого workspace (`u_marta`) | HTTP 404, нотатки немає |
 | дія без сесії | HTTP 307 на `/login`, нотатки немає |
 | журнал сервера | 0 рядків з текстом нотатки, `@` чи `+380` (з 57 рядків — лише лічильники `db:*`) |
-| з JavaScript, у браузері (`run-2/verify-browser.txt`) | порожня: `aria-invalid`, `aria-describedby="lead-note-error"`, підсумок `role="alert"`; валідна: нотатка на сторінці, `role="status"` «Нотатку додано.» |
+| з JavaScript, у браузері (розділ `task-b/run-2/verify-browser.txt`) | порожня: `aria-invalid`, `aria-describedby="lead-note-error"`, підсумок `role="alert"`; валідна: нотатка на сторінці, `role="status"` «Нотатку додано.» |
 
-**Код з перевірки в гілці не лишив** — свідомо, хоча run-2 пройшов Verify. У ньому є
+**Код з перевірки в гілці не лишив** — свідомо, хоча run-2 пройшов Verify. Від Task B у діфі гілки є лише
+`.claude/skills/building-client-form/SKILL.md` (див. таблицю вгорі); `lib/lead-note-form.ts`, `components/lead-note-form.tsx`
+і дія `addLeadNote` існували тільки в робочому дереві під час перевірки. У ньому є
 `after(() => logAudit(…))` у Server Action, тобто робочий приклад правила `server-after-nonblocking`.
 Потрапивши в BASE для Task D, він дав би агенту в прогоні A частину контракту n8n безкоштовно (walkthrough,
 Task D, крок 1: «BASE узято запізно»). Обидва діфи збережено як доказ.
@@ -161,7 +176,7 @@ Task D, крок 1: «BASE узято запізно»). Обидва діфи �
 > **Перший verify був недійсним — і це моя помилка, а не агента.** Скрипт стартував `next start`, але порт
 > 3000 тримав мій старий `next-server` зі збірки ще без форми нотатки: `pkill -f "next start"` його не
 > вбив, бо процес перейменовується. Скрипт не помітив, що його сервер не піднявся, і отримав 500 від
-> старого. Файл лишено як є з позначкою: `run-1/verify-invalid-stale-server.txt`. Після цього всі
+> старого. Файл лишено як є з позначкою: розділ `task-b/run-1/verify-invalid-stale-server.txt` у `docs/evidence/task-b/summary.md`. Після цього всі
 > скрипти стартують сервер через `docs/evidence/bin/server.sh`: він падає, якщо порт зайнятий, і
 > перевіряє PID власника. Через це й перезнята вся серія Task A.
 
@@ -220,7 +235,7 @@ Task D, крок 1: «BASE узято запізно»). Обидва діфи �
 |---|---|
 | `check-contract.mjs` | Node без залежностей, 15 перевірок C1–C15: PASS/FAIL/N/A, для FAIL — `файл:рядок`, exit 1 при FAIL, 2 при помилці аргументів. Підтримує `--root`, `--changed-since <ref>` (змінені рядки + нові неіндексовані файли) і `--help`. Код перевіряється без коментарів; C1/C2 дивляться і в коментарі теж |
 | `selftest-check-contract.mjs` | Доводить, що перевірки справжні (нижче) |
-| `send-signed-callback.mjs` | Матриця колбеків проти запущеного роуту, секрет з `--env-file`, не друкує його. Поки перевірено лише `--help` і вихід без секрету (exit 2): роуту ще немає, прогін буде в Task D |
+| `send-signed-callback.mjs` | Матриця колбеків проти запущеного роуту, секрет з `--env-file`, не друкує його. На момент Task C перевірено лише `--help` і вихід без секрету (exit 2), бо роуту ще не було. У Task D проти роуту B і гілки — 7/7, проти роуту A — 5/10 (`docs/ab-validation.md`) |
 | `mock-n8n.mjs` | Копія `tools/mock-n8n.mjs` байт у байт |
 
 ### Вивід на `main`
@@ -245,7 +260,8 @@ Summary: 3 PASS, 8 FAIL, 4 N/A
 exit=1
 ```
 
-На поточній гілці результат такий самий: 3 PASS, 8 FAIL, 4 N/A. Task A виклику n8n не торкався.
+На гілці в момент BASE (`898aa2b`) результат такий самий: 3 PASS, 8 FAIL, 4 N/A, бо Task A виклику n8n не торкався.
+Після Task D на гілці 0 FAIL (нижче).
 
 ### Перевірки, яким на `main` нема що дивитись: навмисно поганий роут
 
