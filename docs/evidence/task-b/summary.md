@@ -571,3 +571,35 @@ no-JS POST as owner, 501 chars: HTTP 200 · error 'Не більше 500': 1 · 
 server log lines mentioning the note text or an email/phone: 0
 server log lines total: 57
 ```
+
+## `task-b/verify-after-review-run-2.txt`
+
+Після рев'ю CodeRabbit verify-note-form.sh звіряє кожен пункт (exit 1 при FAIL). Код run-2 = 9297071 + run-2/agent.diff у тимчасовому worktree:
+
+```text
+# Task B verify · 9297071+dirty · build N2ueQSLTJnfCduWGI_gqM · pid 83036 · 2026-09-27T15:18:14Z
+hidden inputs in the server-rendered note form: 5 — $ACTION_REF_1 $ACTION_1:0 $ACTION_1:1 $ACTION_KEY leadId
+  ok   no-JS POST as owner saves the note (HTTP 200 · note on page: 2)
+  ok   no-JS POST as marta (other workspace) is refused (HTTP 404 · note on page: 0)
+  ok   no-JS POST without cookie is refused (HTTP 307 · note on page: 0)
+  ok   empty note: accessible field error (HTTP 200 · aria-invalid=true: 1 · role=alert: 1 · 'Напишіть текст нотатки': 1)
+  ok   501 chars: error, typed text kept, nothing saved (HTTP 200 · 'Не більше 500': 1 · kept in textarea: 1 · saved: 0)
+  ok   server log has no note text, email or phone (matching lines: 0 of 54)
+result: all Verify items hold (exit 0)
+```
+
+## `task-b/verify-after-review-run-1.txt`
+
+Той самий скрипт на коді run-1 (d4a9ca7 + run-1/agent.diff) — очікувано FAIL на no-JS пунктах (зависання, HTTP 000):
+
+```text
+# Task B verify · d4a9ca7+dirty · build OjeiPi7yniJAEygccbgyQ · pid 82879 · 2026-09-27T15:17:05Z
+hidden inputs in the server-rendered note form: 4 — $ACTION_REF_1 $ACTION_1:0 $ACTION_1:1 $ACTION_KEY
+  FAIL no-JS POST as owner saves the note (HTTP 000 · note on page: 2)
+  ok   no-JS POST as marta (other workspace) is refused (HTTP 404 · note on page: 0)
+  ok   no-JS POST without cookie is refused (HTTP 307 · note on page: 0)
+  FAIL empty note: accessible field error (HTTP 000 · aria-invalid=true: 0 · role=alert: 0 · 'Напишіть текст нотатки': 0)
+  FAIL 501 chars: error, typed text kept, nothing saved (HTTP 000 · 'Не більше 500': 0 · kept in textarea: 0 · saved: 0)
+  ok   server log has no note text, email or phone (matching lines: 0 of 54)
+result: some Verify items FAIL (exit 1)
+```

@@ -499,3 +499,39 @@ _(empty file)_
 ## `task-a/vercel-review/transcript.jsonl`
 
 Raw stream-json transcript, only in `raw-evidence.tar.gz`. Readable form: `transcript.md` of this unit.
+
+## `task-a/attack-after-review-branch.txt`
+
+Після рев'ю CodeRabbit скрипт сам звіряє очікування (exit 1, якщо заборонений POST змінив лід). Прогін на гілці:
+
+```text
+# branch · 0b0cea4 · build SV3XoaF0ys7jmkhqXBLO7 · pid 82223 · action id 603a2cb3f503…
+status before:                          Кваліфікований
+POST without cookie -> lost:            HTTP 307 · status now: Кваліфікований
+  ok   no cookie: status Кваліфікований
+POST without cookie to / (no proxy) -> lost: HTTP 200 · status now: Кваліфікований
+  ok   no cookie, via /: status Кваліфікований
+POST as marta (brightline) -> won:      HTTP 500 · status now: Кваліфікований
+  ok   other workspace (marta): status Кваліфікований
+POST as olena (owner) -> contacted:     HTTP 200 · status now: Контакт
+  ok   owner (olena): status Контакт
+result: protected (exit 0)
+```
+
+## `task-a/attack-after-review-vulnerable-77882b5.txt`
+
+Той самий скрипт на вразливому коміті 77882b5 (тимчасовий worktree) — перевірка, що утвердження справді ловлять дірку:
+
+```text
+# vulnerable-77882b5 · 77882b5 · build REZtSKGqLwwpQv9LWA6xF · pid 82364 · action id 601d2ca494fd…
+status before:                          Кваліфікований
+POST without cookie -> lost:            HTTP 307 · status now: Кваліфікований
+  ok   no cookie: status Кваліфікований
+POST without cookie to / (no proxy) -> lost: HTTP 200 · status now: Кваліфікований
+  ok   no cookie, via /: status Кваліфікований
+POST as marta (brightline) -> won:      HTTP 200 · status now: Угода
+  FAIL other workspace (marta): expected status Кваліфікований, got Угода
+POST as olena (owner) -> contacted:     HTTP 200 · status now: Контакт
+  ok   owner (olena): status Контакт
+result: NOT protected (exit 1)
+```

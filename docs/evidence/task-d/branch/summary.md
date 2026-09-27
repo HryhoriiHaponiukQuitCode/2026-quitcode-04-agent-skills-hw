@@ -189,3 +189,94 @@ db:getQuote: 3
 {"n8n":"in","event":"quote-request","correlationId":"a73dc898-f94b-46fb-91f6-a14eb41dced5","status":401,"bytes":382,"ms":0}
 {"n8n":"in","event":"quote-request","correlationId":"d4f7f018-2652-4db3-a2e7-78b2b8d3719c","status":401,"bytes":447,"ms":1}
 ```
+
+## `task-d/branch/scenario-after-review.txt`
+
+Сценарій на гілці після виправлень за рев'ю CodeRabbit (quote-form a11y, ліміт автооновлення):
+
+```text
+# scenario · copy 2026-quitcode-04-agent-skills-hw 0b0cea4+worktree · build FeoYKt9oGweEMXbA6LjJH · server pid 83306 · 2026-09-27T15:19:13Z
+mock: tools/mock-n8n.mjs --mode respond-202 --delay 5000 (from the working repo, --env-file=.env.local of the copy)
+.env.local keys (names only): N8N_WEBHOOK_BASE_URL N8N_WEBHOOK_TOKEN N8N_CALLBACK_SECRET APP_BASE_URL 
+GET /quotes/new -> 200
+form fields posted: $ACTION_REF_1 $ACTION_1:0 $ACTION_1:1 $ACTION_KEY company email description budget
+no-JS POST /quotes/new -> HTTP 303 in 0.135712 s (TTFB 0.135484 s)
+redirect / status page: /quotes/8bf28054-714e-4a98-b187-6e770a4202ee
+mock log right after the POST:
+  | [mock-n8n] 2026-09-27T15:19:13.010Z listening on http://127.0.0.1:5678  mode=respond-202  delay=5000 ms  cloud-timeout=off
+  | [mock-n8n] 2026-09-27T15:19:13.011Z production URLs: POST http://127.0.0.1:5678/webhook/<path>
+  | [mock-n8n] 2026-09-27T15:19:13.011Z test URLs: not registered (start with --listen to open them for 120 s)
+  | [mock-n8n] 2026-09-27T15:19:13.011Z header auth: x-n8n-token required (N8N_WEBHOOK_TOKEN is set)
+  | [mock-n8n] 2026-09-27T15:19:13.011Z callbacks: signed, sent to the request's callbackUrl after 5000 ms (async modes)
+  | [mock-n8n] 2026-09-27T15:19:13.439Z POST /webhook/quote-request -> 202 in 1 ms auth=ok idempotency=new | headers: accept,accept-language,content-type,idempotency-key,user-agent,x-correlation-id,x-n8n-token | body 256 B sha256=92199aa58d0b7e9fc561864db5be71a2e549b8ff0aae6169ae71383e9acdd38d
+  | [mock-n8n] 2026-09-27T15:19:13.439Z workflow 69cd78b5-29c2-4728-beb7-0f976d70e7b2 running for 5000 ms, then callback event=quote-request.completed
+/quotes/<id> before the callback:  LeadDesk ← Studio Nova Кошторис для Scenario Test LLC Запит від 27 вер. 2026 р., 18:19 Готуємо кошторис Зазвичай це займає одну-дві хвилини. Сторінка оновиться сама. 
+mock log after the workflow (--mode respond-202 --delay 5000), 6 s after the POST:
+  | [mock-n8n] 2026-09-27T15:19:13.010Z listening on http://127.0.0.1:5678  mode=respond-202  delay=5000 ms  cloud-timeout=off
+  | [mock-n8n] 2026-09-27T15:19:13.011Z production URLs: POST http://127.0.0.1:5678/webhook/<path>
+  | [mock-n8n] 2026-09-27T15:19:13.011Z test URLs: not registered (start with --listen to open them for 120 s)
+  | [mock-n8n] 2026-09-27T15:19:13.011Z header auth: x-n8n-token required (N8N_WEBHOOK_TOKEN is set)
+  | [mock-n8n] 2026-09-27T15:19:13.011Z callbacks: signed, sent to the request's callbackUrl after 5000 ms (async modes)
+  | [mock-n8n] 2026-09-27T15:19:13.439Z POST /webhook/quote-request -> 202 in 1 ms auth=ok idempotency=new | headers: accept,accept-language,content-type,idempotency-key,user-agent,x-correlation-id,x-n8n-token | body 256 B sha256=92199aa58d0b7e9fc561864db5be71a2e549b8ff0aae6169ae71383e9acdd38d
+  | [mock-n8n] 2026-09-27T15:19:13.439Z workflow 69cd78b5-29c2-4728-beb7-0f976d70e7b2 running for 5000 ms, then callback event=quote-request.completed
+  | [mock-n8n] 2026-09-27T15:19:18.662Z callback POST http://127.0.0.1:3000/api/n8n/quote-request -> 202 in 221 ms (try 1/3) event=quote-request.completed body 382 B sha256=29da45ecba4debeb8254342749aadd2f14ac17985096657978744dd7dbef20ad
+/quotes/<id> after the callback:  LeadDesk ← Studio Nova Кошторис для Scenario Test LLC Запит від 27 вер. 2026 р., 18:19 Кошторис готовий Завантажте PDF за посиланням нижче. Завантажити PDF 
+callback matrix (send-signed-callback.mjs --url http://127.0.0.1:3000/api/n8n/quote-request, secret via --env-file):
+  | send-signed-callback · http://127.0.0.1:3000/api/n8n/quote-request · event quote-request · success cases skipped (no --request-key)
+  | ok   unknown event in the path                expected 404, got 404
+  | ok   wrong content-type (text/plain)          expected 415, got 415
+  | ok   body larger than 64 KB                   expected 413, got 413
+  | ok   timestamp 301 s in the past              expected 401, got 401
+  | ok   timestamp 301 s in the future            expected 401, got 401
+  | ok   wrong signature                          expected 401, got 401
+  | ok   body reformatted after signing           expected 401, got 401
+  | 7/7 as expected
+server log: 26 lines; lines with the submitted email / company / description: 0
+server log lines mentioning n8n / quote / callback:
+  | db:insertQuote: 1
+  | {"n8n":"out","event":"quote-request","correlationId":"daebf517-edba-44cb-9152-c12b4ff1800e","attempt":1,"status":202,"ms":12}
+  | db:getQuote: 1
+  | db:updateQuote: 1
+  | db:getQuote: 2
+  | db:claimCallbackKey: 1
+  | db:getQuoteByRequestKey: 1
+  | db:updateQuote: 2
+  | {"n8n":"in","event":"quote-request","correlationId":"daebf517-edba-44cb-9152-c12b4ff1800e","status":202,"bytes":382,"ms":186}
+  | db:getQuote: 3
+  | {"n8n":"in","event":"no-such-event-xyz","correlationId":"9d7cb739-c349-42e7-b298-6172a4ee0b62","status":404,"bytes":0,"ms":0}
+  | {"n8n":"in","event":"quote-request","correlationId":"a56b950b-f1da-4ba5-a4e0-7d8f32440c27","status":415,"bytes":0,"ms":0}
+  | {"n8n":"in","event":"quote-request","correlationId":"ca19ae72-6530-403b-9234-3237f78349d6","status":413,"bytes":0,"ms":0}
+  | {"n8n":"in","event":"quote-request","correlationId":"80c1cab5-06f9-43bd-b132-bce710ec0a8f","status":401,"bytes":382,"ms":0}
+  | {"n8n":"in","event":"quote-request","correlationId":"54acfeb0-3ba5-48a0-8a55-38c4b3484a43","status":401,"bytes":382,"ms":0}
+  | {"n8n":"in","event":"quote-request","correlationId":"578659ee-aa27-4084-84a3-46232ba8164b","status":401,"bytes":382,"ms":0}
+  | {"n8n":"in","event":"quote-request","correlationId":"0f8a851b-d43d-419d-a437-a716d8d22e0b","status":401,"bytes":447,"ms":0}
+```
+
+## `task-d/branch/quote-form-a11y.txt`
+
+Порожня / невалідна відправка /quotes/new без JS після виправлення доступності помилок:
+
+```text
+empty no-JS POST -> HTTP 200
+aria-invalid="true": 4
+aria-describedby: aria-describedby="quote-budget-error" aria-describedby="quote-company-error" aria-describedby="quote-description-error" aria-describedby="quote-email-error" 
+error ids: id="quote-budget-error" id="quote-company-error" id="quote-description-error" id="quote-email-error" 
+role=alert summary: Перевірте поля форми: 
+label htmlFor: for="quote-budget" for="quote-company" for="quote-description" for="quote-email" 
+```
+
+## `task-d/branch/lead-created-n8n-down.txt`
+
+Форма ліда, коли n8n недоступний: 3 спроби, потім запис аудиту lead.n8n_failed (db:insertAuditEntry: 2):
+
+```text
+# lead-created with n8n down (nothing on :5678) · 0b0cea4+worktree · build Rf9KpPlYSc1zCbpDnHMIf · pid 83197
+no-JS POST / (lead form) -> HTTP 200 in 0.436812 s
+server log, n8n and audit lines:
+  | db:insertAuditEntry: 1
+  | {"n8n":"out","event":"lead-created","correlationId":"1359fed1-028c-434f-bf6b-117c491c355d","attempt":1,"status":"TypeError","ms":4}
+  | {"n8n":"out","event":"lead-created","correlationId":"1359fed1-028c-434f-bf6b-117c491c355d","attempt":2,"status":"TypeError","ms":3}
+  | {"n8n":"out","event":"lead-created","correlationId":"1359fed1-028c-434f-bf6b-117c491c355d","attempt":3,"status":"TypeError","ms":2}
+  | db:insertAuditEntry: 2
+server log lines with the submitted email / phone / message: 0
+```

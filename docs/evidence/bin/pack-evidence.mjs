@@ -7,7 +7,7 @@
 // transcript.jsonl files only there. Links and mentions of moved files in docs/*.md are rewritten to
 // the unit's summary.md, whose section heading is the original path.
 import { readFileSync, writeFileSync, readdirSync, statSync, rmSync, existsSync } from "node:fs";
-import { join, relative, dirname, basename } from "node:path";
+import { join, relative, basename } from "node:path";
 import { execFileSync } from "node:child_process";
 
 const EV = "docs/evidence";

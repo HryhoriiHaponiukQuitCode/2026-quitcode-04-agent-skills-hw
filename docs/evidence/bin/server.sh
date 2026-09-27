@@ -16,5 +16,8 @@ start_server() {
 stop_server() {
   kill "$SERVER_PID" 2>/dev/null || true
   for _ in $(seq 1 25); do lsof -t -iTCP:3000 -sTCP:LISTEN >/dev/null 2>&1 || return 0; sleep 0.2; done
-  kill -9 $(lsof -t -iTCP:3000 -sTCP:LISTEN) 2>/dev/null || true
+  # force-kill only our own server: if another process took the port meanwhile, leave it alone
+  local owner; owner=$(lsof -t -iTCP:3000 -sTCP:LISTEN | head -1)
+  if [ "$owner" = "$SERVER_PID" ]; then kill -9 "$SERVER_PID" 2>/dev/null || true
+  elif [ -n "$owner" ]; then echo "stop_server: :3000 is now owned by pid $owner, not $SERVER_PID — not killing it" >&2; fi
 }

@@ -1,9 +1,12 @@
-# usage: bash nojs.sh <label>  (in worktree) — build, start, GET lead page, replay its note form without JS
+#!/usr/bin/env bash
+# usage: bash <repo>/docs/evidence/task-b/nojs-isolation.sh <label>   (cwd = a worktree with the variant to test)
+# Builds and starts the worktree, GETs the lead page and replays its note form without JS.
 set -uo pipefail
-. /private/tmp/claude-501/measure-wt-bin/server.sh
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")/../bin" && pwd)/server.sh"   # from this repo, not from a temp copy
 npm run build >/dev/null 2>&1 || { echo "$1: BUILD FAILED"; exit 1; }
-start_server /private/tmp/claude-501/nojs.log
-trap stop_server EXIT
+LOG=$(mktemp)
+start_server "$LOG"
+trap 'stop_server; rm -f "$LOG"' EXIT
 H=$(mktemp); curl -s -b leaddesk_session=demo-u_olena http://localhost:3000/dashboard/leads/lead_0001 > $H
 ARGS=(); while IFS= read -r l; do ARGS+=(--form-string "$l"); done < <(node -e '
 const html=require("fs").readFileSync(process.argv[1],"utf8");const i=html.indexOf("name=\"note\"");
