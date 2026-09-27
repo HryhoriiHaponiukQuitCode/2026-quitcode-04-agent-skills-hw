@@ -1,0 +1,25 @@
+# 07-async-suspense-boundaries · 3d3cf84 · 2026-09-27T13:09:50Z
+## timing (3 runs)
+TTFB 0.628354s, total 1.415054s
+TTFB 0.631327s, total 1.414049s
+TTFB 0.623312s, total 1.414400s
+## db queries for ONE request of /dashboard (console.count delta)
+db:getLeadStats 1
+db:getLeads 1
+db:getSourceBreakdown 1
+db:getUserBySession 1
+db:getWorkspace 1
+## sizes, bytes
+HTML 113238
+RSC  31627
+## lead fields that reach the browser (occurrences in HTML)
+rawPayload 0
+internalNotes 0
+ipAddress 0
+userAgent 0
+acceptLanguage 0
+"phone" 0
+## JS loaded by /dashboard on open (scripts in HTML)
+scripts 9, raw 587212 B, gzip 181271 B
+## chunks containing exceljs / lodash / recharts markers
+/_next/static/chunks/34vu4gm18o5ty.js 12483 B: exceljs
