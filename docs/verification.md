@@ -18,7 +18,7 @@
 ## Усі змінені файли гілки
 
 <!-- changed-files:start -->
-Згенеровано `node docs/evidence/bin/changed-files.mjs --write` з `git diff --name-status main...HEAD`; `--check` падає, якщо таблиця розійшлась із діфом. **Усього 151 файлів**: код застосунку й `.env.example` — 19, вендорений скіл Vercel — 75, власні скіли — 10, документи й докази — 46, інше — 1 (`skills-lock.json`). Поза цим списком гілка не змінює нічого: `tools/`, `materials/`, `.github/`, `.coderabbit.yaml`, `package.json`, `package-lock.json` — без змін.
+Згенеровано `node docs/evidence/bin/changed-files.mjs --write` з `git diff --name-status main...HEAD`; `--check` падає, якщо таблиця розійшлась із діфом. **Усього 158 файлів**: код застосунку й `.env.example` — 19, вендорений скіл Vercel — 75, власні скіли — 10, документи й докази — 53, інше — 1 (`skills-lock.json`). Поза цим списком гілка не змінює нічого: `tools/`, `materials/`, `.github/`, `.coderabbit.yaml`, `package.json`, `package-lock.json` — без змін.
 
 | Файл | Статус | Task | Коміти | Що змінено |
 |---|---|---|---|---|
@@ -50,19 +50,21 @@
 | `components/leads-table.tsx` | змінено | A | `281ff34` | `server-serialization`: тип `LeadRow` (5 полів) замість `Lead` |
 | `components/leads-toolbar.tsx` | змінено | A | `211f8fe` `7a55dd8` | `bundle-conditional` (`import("exceljs")` у кліку), `bundle-dynamic-imports` (`SourcesChart` через `next/dynamic`) |
 | `components/quote-form.tsx` | додано | D | `c94da6f` `8dc7c03` `9d056af` | прогін B1: форма з `useActionState`; після рев'ю CodeRabbit — `aria-invalid`, `aria-describedby`, `role="alert"`; після аудиту — `inputMode="decimal"` |
-| `docs/ab-validation.md` | додано | D | `266f9d1` `eab812c` `bd6ae06` `2f61e6a` `4c083f3` `103cf57` `3b22311` | звіт A/B і перенесення прогону B |
+| `docs/ab-validation.md` | додано | D | `266f9d1` `eab812c` `bd6ae06` `2f61e6a` `4c083f3` `103cf57` `3b22311` `fbf35b7` | звіт A/B: перша пара (A1/A2, B1/B2), друга пара A3/B3, перенесення прогону B1, дефекти з аудиту |
 | `docs/ab/a-without-skill-run2.diff` | додано | D | `8cf9d4a` `88b2e8b` | повний діф прогону агента від тегу `base` копії |
+| `docs/ab/a-without-skill-run3.diff` | додано | D | `fbf35b7` | повний діф прогону агента від тегу `base` копії |
 | `docs/ab/a-without-skill.diff` | додано | D | `8cf9d4a` `88b2e8b` | повний діф прогону агента від тегу `base` копії |
 | `docs/ab/b-with-skill-run2.diff` | додано | D | `8cf9d4a` `88b2e8b` | повний діф прогону агента від тегу `base` копії |
+| `docs/ab/b-with-skill-run3.diff` | додано | D | `fbf35b7` | повний діф прогону агента від тегу `base` копії |
 | `docs/ab/b-with-skill.diff` | додано | D | `8cf9d4a` `88b2e8b` | повний діф прогону агента від тегу `base` копії |
-| `docs/evidence/bin/changed-files.mjs` | додано | A–E | `2f61e6a` `0923e70` `103cf57` `3b22311` | обв'язка сесій і вимірів, пакування доказів |
+| `docs/evidence/bin/changed-files.mjs` | додано | A–E | `2f61e6a` `0923e70` `103cf57` `3b22311` `fbf35b7` | обв'язка сесій і вимірів, пакування доказів |
 | `docs/evidence/bin/pack-evidence.mjs` | додано | A–E | `bd6ae06` `0923e70` | обв'язка сесій і вимірів, пакування доказів |
-| `docs/evidence/bin/run-ab-session.sh` | додано | A–E | `8cf9d4a` | обв'язка сесій і вимірів, пакування доказів |
+| `docs/evidence/bin/run-ab-session.sh` | додано | A–E | `8cf9d4a` `4322f03` | обв'язка сесій і вимірів, пакування доказів |
 | `docs/evidence/bin/run-readonly-session.sh` | додано | A–E | `913f992` | обв'язка сесій і вимірів, пакування доказів |
 | `docs/evidence/bin/run-scoped-session.sh` | додано | A–E | `50ed3d1` | обв'язка сесій і вимірів, пакування доказів |
 | `docs/evidence/bin/server.sh` | додано | A–E | `50ed3d1` `0923e70` | обв'язка сесій і вимірів, пакування доказів |
 | `docs/evidence/bin/session-report.mjs` | додано | A–E | `913f992` `50ed3d1` | обв'язка сесій і вимірів, пакування доказів |
-| `docs/evidence/raw-evidence.tar.gz` | додано | A–E | `bd6ae06` | оригінали всіх 167 файлів доказів, зібраних у `summary.md` |
+| `docs/evidence/raw-evidence.tar.gz` | додано | A–E | `bd6ae06` `fbf35b7` | оригінали 203 файлів доказів: 167 першого пакування, 36 пари A3/B3 |
 | `docs/evidence/task-a/attack-server-actions.sh` | додано | A | `01464c9` `50ed3d1` `0923e70` | докази Task A |
 | `docs/evidence/task-a/measure-dashboard.sh` | додано | A | `e289c5d` `50ed3d1` | докази Task A |
 | `docs/evidence/task-a/summary.md` | додано | A | `bd6ae06` `0923e70` | докази Task A |
@@ -76,19 +78,24 @@
 | `docs/evidence/task-c/check-contract-main.txt` | додано | C | `2f4fa4f` | докази Task C |
 | `docs/evidence/task-c/selftest.txt` | додано | C | `2f4fa4f` `eab812c` | докази Task C |
 | `docs/evidence/task-d/audit-regress.mjs` | додано | D | `3b22311` | докази Task D |
-| `docs/evidence/task-d/audit-regress.sh` | додано | D | `3b22311` | докази Task D |
+| `docs/evidence/task-d/audit-regress.sh` | додано | D | `3b22311` `4322f03` | докази Task D |
 | `docs/evidence/task-d/branch/summary.md` | додано | D | `bd6ae06` `0923e70` `3b22311` | докази Task D |
 | `docs/evidence/task-d/lead-check.sh` | додано | D | `266f9d1` | докази Task D |
+| `docs/evidence/task-d/pair2/summary.md` | додано | D | `fbf35b7` | докази Task D |
 | `docs/evidence/task-d/probe/summary.md` | додано | D | `bd6ae06` | докази Task D |
 | `docs/evidence/task-d/probe/transcript.md` | додано | D | `bd6ae06` | докази Task D |
 | `docs/evidence/task-d/run-a1/summary.md` | додано | D | `bd6ae06` | докази Task D |
 | `docs/evidence/task-d/run-a1/transcript.md` | додано | D | `bd6ae06` | докази Task D |
 | `docs/evidence/task-d/run-a2/summary.md` | додано | D | `bd6ae06` | докази Task D |
 | `docs/evidence/task-d/run-a2/transcript.md` | додано | D | `bd6ae06` | докази Task D |
+| `docs/evidence/task-d/run-a3/summary.md` | додано | D | `fbf35b7` | докази Task D |
+| `docs/evidence/task-d/run-a3/transcript.md` | додано | D | `fbf35b7` | докази Task D |
 | `docs/evidence/task-d/run-b1/summary.md` | додано | D | `bd6ae06` | докази Task D |
 | `docs/evidence/task-d/run-b1/transcript.md` | додано | D | `bd6ae06` | докази Task D |
 | `docs/evidence/task-d/run-b2/summary.md` | додано | D | `bd6ae06` | докази Task D |
 | `docs/evidence/task-d/run-b2/transcript.md` | додано | D | `bd6ae06` | докази Task D |
+| `docs/evidence/task-d/run-b3/summary.md` | додано | D | `fbf35b7` | докази Task D |
+| `docs/evidence/task-d/run-b3/transcript.md` | додано | D | `fbf35b7` | докази Task D |
 | `docs/evidence/task-d/scenario.sh` | додано | D | `8cf9d4a` | докази Task D |
 | `docs/evidence/task-d/summary.md` | додано | D | `bd6ae06` | докази Task D |
 | `docs/evidence/task-e/summary.md` | додано | E2 | `bd6ae06` | докази Task E2 |
