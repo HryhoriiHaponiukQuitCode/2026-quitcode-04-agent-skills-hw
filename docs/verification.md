@@ -24,7 +24,7 @@
 | `.claude/skills/integrating-n8n-webhooks/references/response-modes.md` | додано | C | `898aa2b` | скіл n8n (v0.1.1 після Task D: C10/C14 у `check-contract.mjs` + 2 кейси selftest) |
 | `.claude/skills/integrating-n8n-webhooks/scripts/check-contract.mjs` | додано | C | `898aa2b` `5b15a8b` | скіл n8n (v0.1.1 після Task D: C10/C14 у `check-contract.mjs` + 2 кейси selftest) |
 | `.claude/skills/integrating-n8n-webhooks/scripts/mock-n8n.mjs` | додано | C | `898aa2b` | скіл n8n (v0.1.1 після Task D: C10/C14 у `check-contract.mjs` + 2 кейси selftest) |
-| `.claude/skills/integrating-n8n-webhooks/scripts/selftest-check-contract.mjs` | додано | C | `898aa2b` `5b15a8b` | скіл n8n (v0.1.1 після Task D: C10/C14 у `check-contract.mjs` + 2 кейси selftest) |
+| `.claude/skills/integrating-n8n-webhooks/scripts/selftest-check-contract.mjs` | додано | C | `898aa2b` `5b15a8b` `6f82e8a` | скіл n8n (v0.1.1 після Task D: C10/C14 у `check-contract.mjs` + 2 кейси selftest) |
 | `.claude/skills/integrating-n8n-webhooks/scripts/send-signed-callback.mjs` | додано | C | `898aa2b` | скіл n8n (v0.1.1 після Task D: C10/C14 у `check-contract.mjs` + 2 кейси selftest) |
 | `.claude/skills/vercel-react-best-practices/AGENTS.md` | додано | A | `3c354e2` | скіл Vercel, вендорено без змін (`skills@1.7.0 --copy`, тег `agent-skills-063bee94…`) |
 | `.claude/skills/vercel-react-best-practices/README.md` | додано | A | `3c354e2` | скіл Vercel, вендорено без змін (`skills@1.7.0 --copy`, тег `agent-skills-063bee94…`) |
