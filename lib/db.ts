@@ -5,6 +5,8 @@ import type {
   LeadStats,
   LeadStatus,
   NewLead,
+  NewQuote,
+  Quote,
   SourceCount,
   User,
   Workspace,
@@ -20,6 +22,9 @@ type Store = {
   leads: Lead[];
   audit: AuditEntry[];
   nextLeadNumber: number;
+  quotes: Quote[];
+  // Claimed idempotency keys of n8n callbacks. In production: a table with a unique constraint.
+  callbackKeys: Set<string>;
 };
 
 const LATENCY_MS = {
@@ -33,6 +38,12 @@ const LATENCY_MS = {
   updateLeadStatus: 80,
   deleteLead: 80,
   insertAuditEntry: 250,
+  insertQuote: 120,
+  getQuote: 80,
+  getQuoteByRequestKey: 80,
+  updateQuote: 80,
+  claimCallbackKey: 20,
+  releaseCallbackKey: 20,
   listUsers: 50,
   createSession: 50,
 } as const;
@@ -261,12 +272,23 @@ function createStore(): Store {
     { id: "u_marta", name: "Marta Novak", email: "marta@brightline.example.test", role: "manager", workspaceSlug: "brightline" },
   ];
   const leads = seedLeads(200, workspaces, users);
-  return { workspaces, users, leads, audit: [], nextLeadNumber: leads.length + 1 };
+  return {
+    workspaces,
+    users,
+    leads,
+    audit: [],
+    nextLeadNumber: leads.length + 1,
+    quotes: [],
+    callbackKeys: new Set(),
+  };
 }
 
 // One store per server process (also survives module reloads in `next dev`).
 const globalForStore = globalThis as unknown as { leadDeskStore?: Store };
 const store = (globalForStore.leadDeskStore ??= createStore());
+// A store created before quotes existed (module reload in `next dev`) gets the new collections.
+store.quotes ??= [];
+store.callbackKeys ??= new Set();
 
 const SESSION_PREFIX = "demo-";
 
@@ -381,6 +403,54 @@ export const db = {
   insertAuditEntry(entry: AuditEntry) {
     return query("insertAuditEntry", () => {
       store.audit.push(entry);
+    });
+  },
+
+  insertQuote(input: NewQuote) {
+    return query("insertQuote", (): Quote => {
+      const now = new Date().toISOString();
+      const quote: Quote = { ...input, documentUrl: null, createdAt: now, updatedAt: now };
+      store.quotes.push(quote);
+      return structuredClone(quote);
+    });
+  },
+
+  getQuote(id: string) {
+    return query("getQuote", () => {
+      const quote = store.quotes.find((q) => q.id === id);
+      return quote ? structuredClone(quote) : null;
+    });
+  },
+
+  getQuoteByRequestKey(requestKey: string) {
+    return query("getQuoteByRequestKey", () => {
+      const quote = store.quotes.find((q) => q.requestKey === requestKey);
+      return quote ? structuredClone(quote) : null;
+    });
+  },
+
+  updateQuote(id: string, patch: Partial<Pick<Quote, "status" | "documentUrl">>) {
+    return query("updateQuote", () => {
+      const quote = store.quotes.find((q) => q.id === id);
+      if (!quote) return false;
+      Object.assign(quote, patch, { updatedAt: new Date().toISOString() });
+      return true;
+    });
+  },
+
+  // false if the key was already claimed (unique constraint in production)
+  claimCallbackKey(key: string) {
+    return query("claimCallbackKey", () => {
+      if (store.callbackKeys.has(key)) return false;
+      store.callbackKeys.add(key);
+      return true;
+    });
+  },
+
+  // Undo a claim when processing failed after it, so that n8n's retry is not taken for a duplicate.
+  releaseCallbackKey(key: string) {
+    return query("releaseCallbackKey", () => {
+      store.callbackKeys.delete(key);
     });
   },
 };
