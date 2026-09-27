@@ -1,0 +1,26 @@
+▲ Next.js 16.3.5
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.102:3000
+✓ Ready in 57ms
+⚠ Warning: Next.js ignored package-lock.json in /Users/hryhorii_haponiuk because it is outside the current Git repository (/Users/hryhorii_haponiuk/Desktop/Work Folder/Agentic Course/2026-quitcode-04-agent-skills-hw).
+ To use this directory, set `outputFileTracingRoot` in your Next.js config.
+
+✓ Running next.config.ts took 13ms
+⚠ Missing `origin` header from a forwarded Server Actions request.
+db:insertQuote: 1
+{"n8n":"out","event":"quote-request","correlationId":"5dafdf7f-9311-4783-b1b3-12728e25eed1","attempt":1,"status":202,"ms":12}
+db:getQuote: 1
+db:updateQuote: 1
+db:getQuote: 2
+db:claimCallbackKey: 1
+db:getQuoteByRequestKey: 1
+db:updateQuote: 2
+{"n8n":"in","event":"quote-request","correlationId":"5dafdf7f-9311-4783-b1b3-12728e25eed1","status":202,"bytes":382,"ms":185}
+db:getQuote: 3
+{"n8n":"in","event":"no-such-event-xyz","correlationId":"115bad50-0e74-445d-a8ab-4dc2485a5d67","status":404,"bytes":0,"ms":0}
+{"n8n":"in","event":"quote-request","correlationId":"66ade1f0-23f1-4847-a94b-85e3e022aeaf","status":415,"bytes":0,"ms":0}
+{"n8n":"in","event":"quote-request","correlationId":"538b1999-018a-4985-91ab-e4d87f6b906b","status":413,"bytes":0,"ms":0}
+{"n8n":"in","event":"quote-request","correlationId":"5c4f8194-7da1-47f9-aa92-324445d167b4","status":401,"bytes":382,"ms":0}
+{"n8n":"in","event":"quote-request","correlationId":"a4405bf9-667e-40cc-9ca3-0c034365585e","status":401,"bytes":382,"ms":0}
+{"n8n":"in","event":"quote-request","correlationId":"a73dc898-f94b-46fb-91f6-a14eb41dced5","status":401,"bytes":382,"ms":0}
+{"n8n":"in","event":"quote-request","correlationId":"d4f7f018-2652-4db3-a2e7-78b2b8d3719c","status":401,"bytes":447,"ms":1}

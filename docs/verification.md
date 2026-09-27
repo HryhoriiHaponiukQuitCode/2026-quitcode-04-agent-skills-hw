@@ -281,4 +281,16 @@ Selftest знайшов у `check-contract.mjs` три баги, які я ви�
 
 ### На фінальному коді
 
-_(після Task D — див. `docs/ab-validation.md`)_
+Після перенесення прогону B і двох комітів доведення (`b6d5a23`, `9ab228f`) вивід такий:
+[`task-d/branch/check-contract-final.txt`](evidence/task-d/branch/check-contract-final.txt).
+
+```
+n8n callers: app/actions.ts, lib/n8n/client.ts · callback routes: app/api/n8n/[event]/route.ts
+Summary: 15 PASS, 0 FAIL, 0 N/A
+exit=0
+```
+
+Там само видно дві неточності самого скрипта, знайдені на коді прогонів (подробиці в `docs/ab-validation.md`):
+- C10 шукає `timingSafeEqual` лише у файлі роуту, а в прогонах A він лежить у `lib/`. Вердикт FAIL від цього
+  не змінюється: HMAC там немає;
+- C14 спрацьовує на `error.name`.

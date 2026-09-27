@@ -1,0 +1,275 @@
+# A/B-перевірка скіла `integrating-n8n-webhooks` (Task D)
+
+**A — без скіла, B — зі скілом, по 2 повтори на кожну руку.** Усі числа й цитати нижче взято з файлів у
+[`docs/evidence/task-d/`](evidence/task-d/). Твердження про поведінку агента перевірено grep'ом по
+`transcript.jsonl` того самого прогону (`report.txt` поруч, генерує `docs/evidence/bin/session-report.mjs`).
+
+- **Інструмент і версія:** Claude Code 2.1.282, headless (`claude -p`, stream-json).
+- **Модель і рівень міркування, однакові в усіх 4 прогонах:** `opus` → `claude-opus-5-5` (поле `model`
+  в init кожного транскрипту), `--effort high`.
+- **Код:** BASE = `898aa2b`. Це коміт після Task C: три скіли й виправлення Task A, ще без `/quotes` і змін у
+  виклику n8n. Скіл для копій B теж узято з `898aa2b`: HEAD тоді дорівнював BASE, наступний коміт
+  змінив лише документацію.
+- **Копії:** `~/leaddesk-ab/leaddesk-ab-{a1,a2,b1,b2}`. У кожній є коміт `start` з тегом `base`,
+  `node_modules` склоновано з робочого репозиторію (`cp -Rc`, без `npm install` з мережі). **Відхилення від
+  `../leaddesk-ab-a`:** копії лежать у `~/leaddesk-ab/`, у шляху без пробілів. Так правило deny закриває агенту
+  читання всього `~/Desktop`, тобто робочого репозиторію, записки, мока й бази знань (див. «Обв'язка»).
+- **Що видалено з обох копій:** `tools/`, `materials/`, `docs/`, `README.md`, `.coderabbit.yaml`, `.github/`
+  і всі скіли. У B повернуто лише `integrating-n8n-webhooks`. `git archive` з exclude-pathspec, без `rm`.
+  Перевірено в [`isolation.txt`](evidence/task-d/isolation.txt):
+  - `find … -name SKILL.md` дає рівно 2 рядки, `leaddesk-ab-b{1,2}/.claude/skills/integrating-n8n-webhooks/SKILL.md`;
+  - «no hints - ok»; «no contract - ok» для a1 і a2;
+  - `diff -rq a1 b1` → `Only in leaddesk-ab-b1: .claude`;
+  - у документації Next.js в `node_modules` 0 файлів зі словом «n8n».
+- **Особисті копії скіла:** `~/.claude/skills` містить 14 чужих скілів, серед них n8n немає. `~/.agents/skills`
+  і `~/.codex/skills` без n8n, `~/.cursor/skills` немає. `--setting-sources project` особисті скіли не
+  вантажить: у `/context` кожної копії є лише `Built-in` і, у B, `Project`.
+- **Запит:** [`prompt.txt`](evidence/task-d/prompt.txt), `cmp` з `materials/ab-task.md:14-18` показує збіг байт у
+  байт, sha256 `498a125e…` однаковий у `meta.txt` усіх 4 прогонів. Кожен прогін — нова сесія.
+- **Відповідь на уточнення:** жоден агент не зупинився з питанням. «Роби, як вважаєш правильним» не знадобилось.
+- **Мок, однаковий для всіх** (з робочого репозиторію, `.env.local` копії):
+  `node --env-file=.env.local <repo>/tools/mock-n8n.mjs --mode respond-202 --delay 5000`, без `--callback-url`.
+  Сценарій один скрипт для всіх: [`scenario.sh`](evidence/task-d/scenario.sh).
+- **Базова лінія `check-contract.mjs` на копії до прогону** (увесь код):
+  3 PASS, **8 FAIL** (C1, C3, C4, C5, C6, C7, C8, C15), 4 N/A, однаково в A і B
+  ([`baseline-a1.txt`](evidence/task-d/baseline-a1.txt) = [`baseline-b1.txt`](evidence/task-d/baseline-b1.txt)
+  з точністю до назви теки). Це старий виклик n8n з форми ліда, в оцінку прогонів він не йде: прогони
+  перевірено з `--changed-since base`.
+
+### Обв'язка сесій і атака на неї
+
+[`docs/evidence/bin/run-ab-session.sh`](evidence/bin/run-ab-session.sh), однакові прапорці для всіх 4:
+- `--setting-sources project --strict-mcp-config` — без особистих налаштувань, хуків і MCP;
+- `--permission-mode acceptEdits --permission-prompts none` — **без** `bypassPermissions`: класифікатор
+  auto mode заборонив такий запуск ще в Task A;
+- allowlist: `Skill, Read, Grep, Glob, Edit, Write, Bash(npm run lint), Bash(npm run build),
+  Bash(npx tsc --noEmit), Bash(git status*), Bash(git diff*), Bash(node .claude/skills/integrating-n8n-webhooks/scripts/check-contract.mjs*)`
+  (в A цього файлу немає, тож правило однакове, а корисне лише в B);
+- deny: `WebFetch, WebSearch, NotebookEdit`, `Read(//Users/…/Desktop/**)`, `Read(~/.claude/**)`, `Read(//private/tmp/**)`,
+  `Read(//tmp/**)`, `Read(//private/var/folders/**)`.
+
+**Чи тримає deny.** Пробна сесія з тими самими прапорцями ([`probe/`](evidence/task-d/probe/)) пробувала прочитати
+робоче репо дев'ятьма способами. Результат за `tool_result` у транскрипті, а не з відповіді агента:
+дозволено лише читання `inside.txt` у власній теці. Відхилено 8 з 8: `Read` README, `Bash head`,
+`Bash cat ../../Desktop/…` (відносний шлях теж перехоплено), `Grep`, `Glob`, `Read ~/.claude/CLAUDE.md`,
+`ls ~/Desktop`, `git -C <repo> log`. У 4 прогонах шляхів поза копією не було. Було лише `/dev/null` і рядок
+`/quotes/[id]` як аргумент пошуку (`report.txt`, «paths outside work dir»). Жоден агент не просився в
+робочий репозиторій, тож відмовляти не довелося.
+
+**Обмеження, однакове для обох рук.** Claude Code вантажить `CLAUDE.md` з батьківських тек. Від
+`~/leaddesk-ab/…` він доходить до `~/.claude/CLAUDE.md` і показує його в `/context` як «Project»-пам'ять
+(687 токенів, про semble і RTK). grep по ньому й по `~/.claude/RTK.md` на
+`n8n|webhook|hmac|idempotency|timingSafe|callback` дає 0 збігів. У Task A/B було так само. Перенести копії в
+`/Users/Shared`, де такого предка немає, заборонив класифікатор («Modify Shared Resources»), і я цього не
+обходив.
+
+## A — без скіла
+
+- **Які скіли бачив агент** ([`context-a1.txt`](evidence/task-d/context-a1.txt), `context-a2.txt`): лише 16 `Built-in`,
+  проєктних немає. `init.skills` у транскриптах збігається.
+- **Чи викликав скіл:** ні, `Skill`-викликів 0 і читань `.claude/skills/**` 0. У a1 є
+  `Glob {.claude/**/*,tools/**/*,.agents/**/*}`: агент шукав скіли й інструменти, але нічого не знайшов.
+- **Що зробив агент.** Обидва повтори сходяться на одній архітектурі:
+  - `/quotes/new` — форма з `useActionState`, бюджет — `<select>` з варіантів форми ліда;
+  - Server Action зберігає запит і робить `redirect` на `/quotes/<id>`;
+  - власний ендпоінт `POST /api/quotes/[id]/callback`;
+  - власна схема захисту колбека: одноразовий токен на запит, у базі лише його `sha256`, n8n повертає
+    його як `Authorization: Bearer …`, порівняння через `timingSafeEqual` у `lib/quotes.ts` / `lib/quote-callback.ts`;
+  - вузол Webhook, на думку агента, має бути в режимі «Respond: Immediately»;
+  - сторінка статусу оновлюється кожні 5 с.
+
+  Різниця між повторами: a1 кличе n8n в `after()`, a2 чекає `fetch` у самій дії до `redirect`.
+- **Звідки агент узяв домовленості** (за `report.txt`, «files read»): контракту команди A не бачив ніде.
+  - З документації Next.js у `node_modules`: `after.md` (обидва), `server-actions.md` і `route.md` (a1),
+    `15-route-handlers.md` (a2). Звідси `after()` в a1 і `RouteContext`.
+  - З наявного коду: `lib/lead-form.ts` (варіанти бюджету), `lib/db.ts`, `app/actions.ts`.
+  - Схему токена, хешування, `AbortSignal.timeout` і випадкові UUID агент узяв із загальних знань: у копії цього
+    немає.
+- **Запитання агента й фінальна відповідь:**
+  - a1 фінальної відповіді не дав. Код дописано, `npm run lint` і `npm run build` пройшли (у транскрипті є
+    таблиця маршрутів з `/quotes/new`, `/quotes/[id]`, `/api/quotes/[id]/callback`). Потім агент хотів
+    написати e2e-скрипт у свій scratchpad `/private/tmp/…`, мій deny не дав («File is covered by a Read deny
+    rule»). Наступним повідомленням стало «You've hit your weekly limit · resets 11am (Europe/Kiev)», exit 1:
+    вичерпано тижневий ліміт акаунта. Прогін зараховано як повний за кодом.
+  - a2: «**Код жодного разу не запускався:** `tsc`, `npm run lint` і `npm run build` у цій сесії автоматично
+    заблоковано». Перевірено в транскрипті: відхилено `npx tsc --noEmit -p <абсолютний шлях>` і
+    `npm run lint --prefix <абсолютний шлях>`, бо такі форми не збігаються з allowlist. `npm run lint` без
+    `--prefix` a2 не пробував. Обв'язка тут не асиметрична: у b1/b2 і a1 `npm run lint` / `npm run build`
+    пройшли, бо агенти викликали їх як є.
+- **Змінені файли й діфи:**
+  - a1: 12 файлів, +499/−1 ([`diffstat`](evidence/task-d/run-a1/diffstat.txt)), діф
+    [`docs/ab/a-without-skill.diff`](ab/a-without-skill.diff);
+  - a2: 11 файлів, +507/−1, діф [`docs/ab/a-without-skill-run2.diff`](ab/a-without-skill-run2.diff).
+- **Змінні середовища:**
+  - a1: `N8N_QUOTE_WEBHOOK_URL=http://127.0.0.1:5678/webhook/quote-request`, `APP_BASE_URL`;
+  - a2: `N8N_QUOTE_WEBHOOK_URL=http://127.0.0.1:5678/`**`webhook-test`**`/quote-request`, `APP_URL`.
+
+  Токена для n8n і секрету колбека немає в обох. У `.env.local` для мока я додав `N8N_WEBHOOK_TOKEN` і
+  `N8N_CALLBACK_SECRET`: цього вимагає n8n клієнта з Header Auth і підписом.
+- **`check-contract.mjs --changed-since base`** ([a1](evidence/task-d/run-a1/check-contract-changed.txt),
+  [a2](evidence/task-d/run-a2/check-contract-changed.txt)):
+
+  | | C1 | C2 | C3 | C4 | C5 | C6 | C7 | C8 | C9 | C10 | C11 | C12 | C13 | C14 | C15 | разом |
+  |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+  | a1 | PASS | PASS | FAIL | FAIL | PASS | FAIL | FAIL | PASS | FAIL | FAIL | FAIL | FAIL | PASS | PASS | FAIL | 6 PASS · **9 FAIL** |
+  | a2 | **FAIL** | PASS | FAIL | FAIL | PASS | FAIL | FAIL | FAIL | FAIL | FAIL | FAIL | FAIL | PASS | PASS | FAIL | 4 PASS · **11 FAIL** |
+
+  Для C10 скрипт пише «no timingSafeEqual», і для A це неточно: `timingSafeEqual` у них є, але в
+  `lib/`, а C10 дивиться лише у файл роуту. Сам FAIL C10 від цього не змінюється: «no HMAC computed»,
+  підпису тіла немає зовсім.
+- **Журнал мока** ([a1 scenario.txt](evidence/task-d/run-a1/scenario/scenario.txt), [a2](evidence/task-d/run-a2/scenario/scenario.txt)):
+  ```
+  a1  POST /webhook/quote-request -> 403 in 1 ms auth=missing | headers: accept,accept-language,content-type,user-agent | body 347 B
+  a2  POST /webhook-test/quote-request -> 404 in 1 ms  | body 359 B        # тестовий URL з .env.example агента
+  a2* POST /webhook/quote-request -> 403 in 1 ms auth=missing              # * те саме з виправленим URL у .env.local
+  ```
+  Колбека немає ні в одному A: мок його не шле, бо запит відхилено. Щоб перевірити роут A окремо,
+  матриця `send-signed-callback.mjs` послала йому колбеки, підписані за контрактом
+  ([a2*](evidence/task-d/run-a2/scenario-production-url/scenario.txt)): «valid signed callback expected 202,
+  got 401», разом 5/10. Отже навіть із вимкненим Header Auth справжній n8n за контрактом до A не достукається:
+  роут чекає власний Bearer-токен, а не HMAC.
+- **Час від «Надіслати» до відповіді форми** (no-JS POST, `curl time_total`): a1 **0,135 с** (303), a2 **0,226 с**
+  (303). a2 довше, бо чекає n8n у дії (C8). Мок відповідає за 1 мс, а зі справжнім n8n a2 чекав би відповіді
+  вебхука, до таймауту 10 с.
+- **Що показала `/quotes/<id>`:** в обох «Не вдалося підготувати кошторис». В a1 ще «Ваш запит збережено —
+  менеджер підготує кошторис вручну».
+- **Журнал сервера:** рядків з email, компанією чи описом із форми 0. Є
+  `Failed to start quote workflow for <id> Error: n8n responded with 403` (a1) і
+  `n8n rejected quote <id>: HTTP 404` (a2). Тіл, токенів і підписів немає.
+
+## B — зі скілом
+
+- **Які скіли бачив агент** ([`context-b1.txt`](evidence/task-d/context-b1.txt), `context-b2.txt`):
+  `integrating-n8n-webhooks | Project | ~340` і ті самі 16 `Built-in`.
+- **Чи викликав агент скіл:** так, в обох повторах, сам, без назви скіла в запиті.
+  - b1: `Skill integrating-n8n-webhooks`, потім `references/code-templates.md`, `contract.md`, `n8n-setup.md`,
+    `response-modes.md` і перегляд `scripts/`.
+  - b2: `Skill`, `code-templates.md`, `contract.md`, `n8n-setup.md` і `scripts/check-contract.mjs`.
+  - Обидва запустили `check-contract.mjs --changed-since HEAD`, b1 ще й повний прогін (7 FAIL, усі в старій
+    формі ліда), і відповіли, що старий код не чіпали, бо це поза задачею.
+- **Що зробив агент** (обидва повтори майже однаково, за шаблонами скіла):
+  - `lib/n8n/client.ts` з `import "server-only"`, таймаутом 10 с, двома повторами й заголовками контракту;
+  - `requestQuote`: валідація, запис `queued`, `redirect`, n8n в `after()`, статус `sent`/`failed` лише зі стану `queued`;
+  - `app/api/n8n/[event]/route.ts` за 11 кроками контракту;
+  - `/quotes/[id]` з автооновленням кожні 5 с;
+  - сховище в `lib/db.ts`, 4 змінні в `.env.example`, `docs/n8n-integrations.md`.
+- **Запитання й фінальна відповідь** (скорочено). Питань не було. Обидва агенти самі назвали, що лишилося
+  неперевіреним: «Проміжок від запиту до колбеку я ще не проганяв: для цього потрібен `.env.local`, а його
+  немає» (b1). Обидва помітили старий виклик n8n у формі ліда (`/webhook-test/`, увесь лід з IP і user agent)
+  і запропонували перевести його окремою зміною. b2 додав: «це слід узгодити з власником» воркфлоу.
+- **Змінені файли й діфи:**
+  - b1: 12 файлів, +609/−1, діф [`docs/ab/b-with-skill.diff`](ab/b-with-skill.diff);
+  - b2: 12 файлів, +645/−1, діф [`docs/ab/b-with-skill-run2.diff`](ab/b-with-skill-run2.diff).
+- **Змінні середовища:** `N8N_WEBHOOK_BASE_URL=http://127.0.0.1:5678/webhook`, `N8N_WEBHOOK_TOKEN=change-me-…`,
+  `N8N_CALLBACK_SECRET=change-me-…`, `APP_BASE_URL=http://127.0.0.1:3000` (обидва).
+- **`check-contract.mjs --changed-since base`** ([b1](evidence/task-d/run-b1/check-contract-changed.txt),
+  [b2](evidence/task-d/run-b2/check-contract-changed.txt)): C1–C15 усі PASS, **15 PASS · 0 FAIL · 0 N/A**,
+  exit 0, в обох.
+- **Журнал мока** (b1; у b2 те саме з точністю до часу й id):
+  ```
+  POST /webhook/quote-request -> 202 in 1 ms auth=ok idempotency=new | headers: …,content-type,idempotency-key,…,x-correlation-id,x-n8n-token | body 256 B
+  workflow 88b36247-… running for 5000 ms, then callback event=quote-request.completed
+  callback POST http://127.0.0.1:3000/api/n8n/quote-request -> 202 in 220 ms (try 1/3) event=quote-request.completed body 382 B
+  ```
+  Матриця `send-signed-callback.mjs` проти роуту — **7/7**: 404, 415, 413, 401 ×4.
+- **Час від «Надіслати» до відповіді форми:** b1 **0,135 с**, b2 **0,135 с** (303 на `/quotes/<uuid>`).
+- **Що показала `/quotes/<id>`:** до колбека «Готуємо кошторис… Сторінка оновиться сама», після нього «Кошторис
+  готовий. Завантажити PDF». У b2 ще бюджет і опис задачі.
+- **Журнал сервера:** рядків з email, компанією чи описом із форми 0. n8n-рядки — лише
+  `{"n8n":"out"|"in","event",…,"correlationId",…,"status",…,"ms",…}` (b2 ще розмір і sha256 тіла, як дозволяє
+  контракт).
+
+## Порівняння
+
+| Що дивимось | A1 | A2 | B1 | B2 |
+|---|---|---|---|---|
+| Скіл викликано | — (його немає) | — | **так**, `Skill` + 4 references | **так**, `Skill` + 3 references + `check-contract.mjs` |
+| `check-contract --changed-since base`: FAIL | **9**: C3 C4 C6 C7 C9 C10 C11 C12 C15 | **11**: C1 C3 C4 C6 C7 C8 C9 C10 C11 C12 C15 | **0** | **0** |
+| URL вебхука | `/webhook/` | **`/webhook-test/`** | `/webhook/` | `/webhook/` |
+| `auth=` / `idempotency=` у моку | `missing` / — | 404 до auth; з prod-URL `missing` | `ok` / `new` | `ok` / `new` |
+| Колбек дійшов; код застосунку | ні (403); підписаний колбек → 401 | ні (404/403); підписаний колбек → 401 | так, **202** | так, **202** |
+| Сторінка статусу після сценарію | «Не вдалося…» | «Не вдалося…» | «Кошторис готовий» | «Кошторис готовий» |
+| Час відповіді форми | 0,135 с | 0,226 с (чекає n8n) | 0,135 с | 0,135 с |
+| Тіла / персональні дані в журналі сервера | немає | немає | немає | немає |
+| Email клієнта йде в n8n | так | так | ні (лише `quoteId`, компанія, опис, бюджет) | ні |
+| Змінених файлів | 12 | 11 | 12 | 12 |
+| `lint` / `build` агент запустив | так / так | ні (форми з `--prefix`/`-p` відхилено) | так / так | так / так |
+| Запитання агента | — | — | — | — |
+| Ходів · час · вартість | 49 · 280 с · $1.24 (обірвано лімітом) | 46 · 292 с · $1.29 | 45 · 225 с · $1.19 | 40 · 240 с · $1.44 |
+
+Спільне в A і B, отже не заслуга скіла: форма без JS (303 + `redirect`), валідація в дії, випадкові id сторінки
+статусу, журнал без персональних даних, автооновлення сторінки. Усе це агент бере з наявного коду
+(`lead-form`, `actions.ts`) і з документації Next.js у `node_modules`.
+
+## Перенесення прогону B у гілку (фіча)
+
+- **Як переносили:** `git apply --3way docs/ab/b-with-skill.diff` (діф прогону **b1**, без жодної правки),
+  коміт `8c7705f` «feat(quotes): … (run B of Task D)». b1, а не b2: обидва дають 0 FAIL, але сторінка статусу в
+  b1 показує менше даних запиту. `.env.local` і `node_modules` не переносились. Нових залежностей немає,
+  `package.json` не змінювався.
+  > Перша копія діфів у `docs/ab/` (коміт `918f623`) була непридатна: хук RTK переписав `git diff > файл` на
+  > свій стислий вивід, і `git apply` відповів «No valid patches in input». Діфи перезняв через
+  > `rtk proxy git diff` (коміт `e763331`) і перевірив `git apply --check`. Ще одна моя помилка по ходу:
+  > у тій самій команді я запустив `git stash` у копіях. Роботу агентів одразу повернув `git stash pop --index`,
+  > і `git diff --cached base` кожної копії байт у байт збігся зі збереженим діфом.
+- **Що довелось доробити руками** (кожне — окремим комітом):
+  1. `b6d5a23` **fix(n8n): форма ліда через `lib/n8n/client` в `after()`.** Старий `submitLead` робив
+     `await fetch(process.env.N8N_WEBHOOK_URL!)` без токена, таймаут, ключа й конверта і слав увесь лід разом з
+     IP, user agent і `rawPayload` (C3–C8). Тепер він викликає `triggerWorkflow("lead-created", …)` у `after()`.
+     У `data` лише поля, потрібні CRM. `idempotency-key` = `lead-created:<lead.id>`: ключ виводиться із
+     запису, схему `Lead` не змінено. **Це зміна формату для воркфлоу клієнта.** Згідно з правилом зупинки
+     скіла її треба погодити з власником воркфлоу до деплою. Записано в `docs/n8n-integrations.md`.
+     По ходу C14 зачепився за `error.name` у `console.error` (шаблон `\bname\b`). Перевірку не послаблював:
+     переписав лог, як у шаблоні скіла, де назва помилки йде в лог через змінну.
+  2. `9ab228f` **chore(env): прибрати `/webhook-test/` з `.env.example`.** Змінну `N8N_WEBHOOK_URL` більше
+     ніхто не читає (C1).
+
+  **Чому скіл цього не дав.** Агент B свідомо не чіпав код поза задачею, і це правильно. Обидва повтори
+  знайшли порушення в старому коді `check-contract`-ом, назвали їх і запропонували окрему зміну. Межа скіла
+  тут не в знаннях, а в обсязі задачі: «доведення» — це рішення людини про зміну чужого воркфлоу.
+- **Ключі контракту в `.env.example`:** `N8N_WEBHOOK_BASE_URL=http://127.0.0.1:5678/webhook`,
+  `N8N_WEBHOOK_TOKEN=change-me-webhook-token`, `N8N_CALLBACK_SECRET=change-me-callback-secret`,
+  `APP_BASE_URL=http://127.0.0.1:3000`. Адрес `/webhook-test/` немає. `.env.local` створено скриптом із
+  `.env.example`: значення `change-me-…` замінено на `randomBytes(32)`, друкуються лише назви ключів. Він у
+  `.gitignore`, `git ls-files ".env*"` показує лише `.env.example`. grep значень секретів по `docs/` дає 0 файлів.
+- **`npm run lint`, `npm run build` на гілці:** без помилок. У маршрутах є `/api/n8n/[event]`, `/quotes/[id]`,
+  `/quotes/new`.
+- **`check-contract.mjs` на фінальному коді (увесь проєкт, без `--changed-since`):**
+  [`branch/check-contract-final.txt`](evidence/task-d/branch/check-contract-final.txt)
+  ```
+  n8n callers: app/actions.ts, lib/n8n/client.ts · callback routes: app/api/n8n/[event]/route.ts
+  C1–C15: 15 PASS, 0 FAIL, 0 N/A
+  exit=0
+  ```
+- **Сценарій ще раз, уже на гілці** ([`branch/scenario/scenario.txt`](evidence/task-d/branch/scenario/scenario.txt)):
+  - форма: 303 за 0,135 с;
+  - мок: `POST /webhook/quote-request -> 202 auth=ok idempotency=new`, потім
+    `callback POST …/api/n8n/quote-request -> 202`;
+  - сторінка: «Готуємо кошторис», а після колбека «Кошторис готовий»;
+  - матриця колбеків 7/7, персональних даних у журналі сервера 0.
+
+  Форма ліда ([`branch/lead-check.txt`](evidence/task-d/branch/lead-check.txt)):
+  `POST /webhook/lead-created -> 200 auth=ok idempotency=new`, у журналі сервера
+  `{"n8n":"out","event":"lead-created",…,"status":200}`, email, телефону й тексту 0. Відповідь 0,43 с дають
+  штучні затримки `insertLead`/`logAudit` у демо-«базі», n8n уже не чекаємо.
+- **`docs/n8n-integrations.md`:** рядок `quote-request` дописав агент b1, рядок `lead-created` і примітку про
+  зміну формату — я.
+
+## Висновок
+
+Скіл змінив результат там, де контракт не виводиться з коду. Без скіла обидва агенти написали справну на вигляд
+фічу з продуманим захистом: хешований одноразовий токен і `timingSafeEqual`. Але це їхній власний протокол,
+тож з n8n клієнта він не працює. Мок відхилив запит (403 без `x-n8n-token`; у a2 ще й 404 через `/webhook-test/`),
+колбек не прийшов, а підписаний за контрактом колбек роут A відхиляє з 401. `check-contract` на коді A дає 9 і
+11 FAIL. Зі скілом обидва повтори викликали його самі, взяли шаблони з `references/` і перевірили себе його ж
+скриптом: 0 FAIL, повний ланцюжок «форма → 202 → підписаний колбек → готово» за 0,135 с відповіді форми.
+
+Що скіл **не** змінив: форма без JS, валідація, випадкові id, чисті журнали. Це агент бере з наявного коду й
+документації Next.js в обох руках. Після перенесення довелося доробити лише старий виклик n8n форми ліда, який
+агент B свідомо лишив поза задачею.
+
+Що змінити в скілі після цих прогонів:
+- C10 має шукати `timingSafeEqual` / HMAC і в модулях, які імпортує роут, а не лише в самому роуті;
+- C14 не повинен спрацьовувати на `error.name`.
+
+Обмеження: по 2 прогони на руку, одна модель; a1 без фінальної відповіді через тижневий ліміт акаунта.

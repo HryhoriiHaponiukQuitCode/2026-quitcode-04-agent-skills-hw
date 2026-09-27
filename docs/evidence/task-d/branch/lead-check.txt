@@ -1,0 +1,7 @@
+# lead-created check · 9ab228f · build lJIOIyp0ArAwPlUVguy23 · pid 61528 · 2026-09-27T14:21:20Z
+no-JS POST / (lead form) -> HTTP 200 in 0.433904 s
+mock log (mode immediately):
+  | [mock-n8n] 2026-09-27T14:21:20.988Z POST /webhook/lead-created -> 200 in 1 ms auth=ok idempotency=new | headers: accept,accept-language,content-type,idempotency-key,user-agent,x-correlation-id,x-n8n-token | body 266 B 
+server log n8n lines:
+  | {"n8n":"out","event":"lead-created","correlationId":"4dbd2ecf-ecc9-4b95-81ee-8c94fd9c0719","attempt":1,"status":200,"ms":8}
+server log lines with the submitted email / phone / message: 0

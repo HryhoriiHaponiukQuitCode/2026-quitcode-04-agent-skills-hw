@@ -1,0 +1,9 @@
+[mock-n8n] 2026-09-27T14:20:53.153Z listening on http://127.0.0.1:5678  mode=respond-202  delay=5000 ms  cloud-timeout=off
+[mock-n8n] 2026-09-27T14:20:53.154Z production URLs: POST http://127.0.0.1:5678/webhook/<path>
+[mock-n8n] 2026-09-27T14:20:53.154Z test URLs: not registered (start with --listen to open them for 120 s)
+[mock-n8n] 2026-09-27T14:20:53.154Z header auth: x-n8n-token required (N8N_WEBHOOK_TOKEN is set)
+[mock-n8n] 2026-09-27T14:20:53.154Z callbacks: signed, sent to the request's callbackUrl after 5000 ms (async modes)
+[mock-n8n] 2026-09-27T14:20:53.587Z POST /webhook/quote-request -> 202 in 1 ms auth=ok idempotency=new | headers: accept,accept-language,content-type,idempotency-key,user-agent,x-correlation-id,x-n8n-token | body 256 B sha256=5dd53f058f245df063b6a5eb1166b2a2770c77fa933d529784ae94c763604564
+[mock-n8n] 2026-09-27T14:20:53.587Z workflow 4093ad01-4fa7-45d1-8e46-57a852277ada running for 5000 ms, then callback event=quote-request.completed
+[mock-n8n] 2026-09-27T14:20:58.813Z callback POST http://127.0.0.1:3000/api/n8n/quote-request -> 202 in 223 ms (try 1/3) event=quote-request.completed body 382 B sha256=712bfb28cb144578e4a337e9c749ea3b534172d59657a350b78052e5854e5a1c
+[mock-n8n] 2026-09-27T14:21:00.109Z stopping (SIGTERM)
