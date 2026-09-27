@@ -11,10 +11,12 @@
 
 - Запуск: Server Action `requestQuote` (`app/quotes/actions.ts`) зберігає запит (`queued`), редіректить на
   `/quotes/<id>` і викликає n8n в `after()`.
-- `data`: `quoteId`, `company`, `description`, `budget`. Email клієнта в n8n **не** передаємо — воркфлоу
+- `data`: `quoteId`, `company`, `description`, `budget`. `budget` — число доларів, до 2 знаків після коми
+  (`1500`, `1500.5`), або `null`, якщо поле порожнє. Email клієнта в n8n **не** передаємо — воркфлоу
   листів не надсилає. Якщо знадобиться — додати поле й записати рішення тут.
 - Колбек: `quote-request.completed` з `result.documentUrl` (лише `https://`) → `ready`;
-  `quote-request.failed` → `failed`.
+  `quote-request.failed` → `failed`. Суфікс `event` має збігатися з `data.status`, інакше 400. `sent`/`failed`
+  з боку застосунку записується лише зі стану `queued` в одній операції, тож готовий кошторис не повертається в `sent`.
 
 ## lead-created
 

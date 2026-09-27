@@ -473,3 +473,44 @@ GitGuardian у PR перевіряє кожен коміт, а не лише ф�
 | `3c80e71` | `0923e70` | chore(evidence): scripts assert their expectations; stop_server never kills a foreign :3000 owner |
 | `4f2fbd8` | `4c083f3` | docs: CodeRabbit review follow-up in verification.md and ab-validation.md |
 | `f2f4ca7` | `0db6742` | docs(verification): regenerate the changed-files table |
+
+## Після аудиту (коміт `12b3397`)
+
+Аудит гілки знайшов три дефекти в коді фічі кошторису (Task D, код прогону b1) і дві неточності в
+`docs/ab-validation.md`. Для дефектів написано регресійну перевірку
+[`task-d/audit-regress.mjs`](evidence/task-d/audit-regress.mjs), її запускає `audit-regress.sh`. Скрипт
+збирає продакшн-версію з тестовими значеннями секретів, які генерує сам, ніде не друкує й не бере з `.env.local`.
+Він грає роль n8n на :5679 і завершується з exit 1 при будь-якому FAIL. Виводи —
+[`task-d/branch/summary.md`](evidence/task-d/branch/summary.md), розділи `audit-*.txt`.
+
+| # | Дефект | Відтворено до виправлення (`12b3397`) | Виправлення | Файли, коміт |
+|---|---|---|---|---|
+| 1 | Готовий кошторис повертається в `sent` | n8n кличе колбек до відповіді 202, затримка 0…400 мс з кроком 20: 4 з 21 запиту лишились «Готуємо кошторис» (40, 60, 80, 100 мс) | `updateQuote(id, patch, "queued")`: перевірка статусу й запис в одному кроці | `lib/db.ts`, `app/quotes/actions.ts` · `568ccac` |
+| 2 | Бюджет перетворюється неправильно | `1500,50` → 150050, `1 500,5` → 15005, `1,2,3` → 123, `1,500` → 1500, `1e3` → 1000, `0x10` → 16, `1500.50` → 1501 | формат: цілі долари, пробіли між розрядами, до 2 знаків після `.` або `,`; інше — помилка поля. `inputMode="decimal"` | `lib/quote-form.ts`, `components/quote-form.tsx` · `9d056af` |
+| 3 | Колбек приймає суперечливі `event` і `status` | `quote-request.completed` + `failed` → 202, кошторис став `failed`; `.failed` + `completed` → 202, став `ready` | `` body.event === `${event}.${d.status}` ``, інакше 400 і ключ звільняється | `app/api/n8n/[event]/route.ts` · `400a450` |
+
+- **До:** `audit-before.txt` — 6 ok, 10 FAIL. **Після:** `audit-after.txt` на `c3545ea` — 16 ok, 0 FAIL.
+- **Абляція:** усі виправлення в дереві, повертаю одне. Без №2 — 7 FAIL, усі в бюджеті. Без №3 — 2 FAIL, обидва
+  про `event`/`status`. Без №1 — 1 FAIL, гонка: знову 40…100 мс. Кожна перевірка ловить свій дефект і лише його.
+- **Скіл:** №1 і №3 дослівно були в шаблонах `references/code-templates.md` v0.1.0, і обидва прогони B переписали
+  їх звідти. У v0.1.3 (`c3545ea`) шаблони пишуть статус одним кроком і звіряють `event` з `status`, а коментар до
+  розбору форми задає формат бюджету. Та сама вимога додана в `references/contract.md`, крок 7.
+  `check-contract.mjs` ці дефекти не ловить: вони в логіці статусів, а не в контракті з n8n.
+- **`docs/n8n-integrations.md`:** описано формат `budget` у `data`, вимогу збігу `event` ↔ `status` і правило
+  запису `sent`/`failed`.
+- **Неточності звіту A/B:**
+  - «агент узяв із загальних знань» замінено на «у зафіксованих читаннях джерела не знайдено; ймовірно, базові
+    знання». Для `after()` і `RouteContext` додано порядок з транскриптів: сторінку прочитано чи знайдено Grep'ом
+    раніше, ніж з'явився код;
+  - «`init.skills` збігається» замінено точним описом. `/context` показує 16 вбудованих скілів, `init.skills` — 21,
+    переліки різні. Спільне в обох: в A немає `integrating-n8n-webhooks`, у B він є.
+- **Фінальні перевірки на коді після виправлень:**
+  - `npm run lint` — 0 проблем;
+  - `npx tsc --noEmit` — 0 помилок;
+  - `npm run build` — успішно, його запускають `audit-regress.sh` і `scenario.sh`;
+  - `check-contract.mjs` — 15 PASS / 0 FAIL (`check-contract-after-audit.txt`);
+  - selftest — «all expectations met»;
+  - повний сценарій `scenario-after-audit.txt`: форма без JS → 303 за 0,135 с → мок `202 auth=ok` → підписаний
+    колбек 202 → «Кошторис готовий», матриця колбека 7/7, персональних даних у журналі сервера 0.
+
+  Результати прогонів A/B у `docs/ab-validation.md` — історичні, зняті на коді агентів до цих виправлень.

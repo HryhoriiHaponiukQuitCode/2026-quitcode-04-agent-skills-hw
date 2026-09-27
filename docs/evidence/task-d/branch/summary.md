@@ -280,3 +280,229 @@ server log, n8n and audit lines:
   | db:insertAuditEntry: 2
 server log lines with the submitted email / phone / message: 0
 ```
+
+## `task-d/branch/audit-before.txt`
+
+Три дефекти з аудиту, відтворені на коді до виправлень (`12b3397`): `bash docs/evidence/task-d/audit-regress.sh`.
+
+```text
+# audit regression · 12b3397 · build X7y-Hjdm_SveEUS83Yax0 · pid 5021 · 2026-09-27T16:05:30Z
+# 1. budget parsing (value that reached n8n, or a form error)
+ok   budget "1500" -> 1500 — n8n got 1500
+ok   budget "1 500" -> 1500 — n8n got 1500
+FAIL budget "1500,50" -> 1500.5 — n8n got 150050
+FAIL budget "1500.50" -> 1500.5 — n8n got 1501
+FAIL budget "1 500,5" -> 1500.5 — n8n got 15005
+ok   budget "" -> null — n8n got null
+FAIL budget "1,2,3" -> form error — accepted, n8n got 123
+FAIL budget "1,500" -> form error — accepted, n8n got 1500
+FAIL budget "1e3" -> form error — accepted, n8n got 1000
+FAIL budget "0x10" -> form error — accepted, n8n got 16
+ok   budget "-5" -> form error — form error
+ok   budget "12345678901234" -> form error — form error
+# 2. signed callback: event suffix must match data.status
+FAIL quote-request.completed + status "failed" -> 400 — got 202, page: Не вдалося підготувати кошторис
+FAIL quote-request.failed + status "completed" -> 400 — got 202, page: Кошторис готовий
+ok   quote-request.completed + status "completed" -> 202 — got 202, page: Кошторис готовий
+# 3. race: n8n calls back before answering 202, after 0..400 ms
+FAIL 21 quotes with a completed callback all end "Кошторис готовий" — 40 ms: callback 202, page "Готуємо кошторис"; 60 ms: callback 202, page "Готуємо кошторис"; 80 ms: callback 202, page "Готуємо кошторис"; 100 ms: callback 202, page "Готуємо кошторис"
+result: 6 ok, 10 FAIL
+```
+
+## `task-d/branch/audit-ablation-budget.txt`
+
+Абляція: усі три виправлення в робочому дереві, повернуто лише розбір бюджету (`lib/quote-form.ts`, `components/quote-form.tsx`).
+
+```text
+# audit regression · 12b3397+worktree · build hw3_mUXBSZMXD5SGYc8-8 · pid 5245 · 2026-09-27T16:07:12Z
+# 1. budget parsing (value that reached n8n, or a form error)
+ok   budget "1500" -> 1500 — n8n got 1500
+ok   budget "1 500" -> 1500 — n8n got 1500
+FAIL budget "1500,50" -> 1500.5 — n8n got 150050
+FAIL budget "1500.50" -> 1500.5 — n8n got 1501
+FAIL budget "1 500,5" -> 1500.5 — n8n got 15005
+ok   budget "" -> null — n8n got null
+FAIL budget "1,2,3" -> form error — accepted, n8n got 123
+FAIL budget "1,500" -> form error — accepted, n8n got 1500
+FAIL budget "1e3" -> form error — accepted, n8n got 1000
+FAIL budget "0x10" -> form error — accepted, n8n got 16
+ok   budget "-5" -> form error — form error
+ok   budget "12345678901234" -> form error — form error
+# 2. signed callback: event suffix must match data.status
+ok   quote-request.completed + status "failed" -> 400 — got 400, page: Готуємо кошторис
+ok   quote-request.failed + status "completed" -> 400 — got 400, page: Готуємо кошторис
+ok   quote-request.completed + status "completed" -> 202 — got 202, page: Кошторис готовий
+# 3. race: n8n calls back before answering 202, after 0..400 ms
+ok   21 quotes with a completed callback all end "Кошторис готовий"
+result: 9 ok, 7 FAIL
+```
+
+## `task-d/branch/audit-ablation-event.txt`
+
+Абляція: повернуто лише звірку `event` ↔ `data.status` (`app/api/n8n/[event]/route.ts`).
+
+```text
+# audit regression · 12b3397+worktree · build eHQpvsrlJlg0PnSOTTGs8 · pid 5323 · 2026-09-27T16:07:28Z
+# 1. budget parsing (value that reached n8n, or a form error)
+ok   budget "1500" -> 1500 — n8n got 1500
+ok   budget "1 500" -> 1500 — n8n got 1500
+ok   budget "1500,50" -> 1500.5 — n8n got 1500.5
+ok   budget "1500.50" -> 1500.5 — n8n got 1500.5
+ok   budget "1 500,5" -> 1500.5 — n8n got 1500.5
+ok   budget "" -> null — n8n got null
+ok   budget "1,2,3" -> form error — form error
+ok   budget "1,500" -> form error — form error
+ok   budget "1e3" -> form error — form error
+ok   budget "0x10" -> form error — form error
+ok   budget "-5" -> form error — form error
+ok   budget "12345678901234" -> form error — form error
+# 2. signed callback: event suffix must match data.status
+FAIL quote-request.completed + status "failed" -> 400 — got 202, page: Не вдалося підготувати кошторис
+FAIL quote-request.failed + status "completed" -> 400 — got 202, page: Кошторис готовий
+ok   quote-request.completed + status "completed" -> 202 — got 202, page: Кошторис готовий
+# 3. race: n8n calls back before answering 202, after 0..400 ms
+ok   21 quotes with a completed callback all end "Кошторис готовий"
+result: 14 ok, 2 FAIL
+```
+
+## `task-d/branch/audit-ablation-race.txt`
+
+Абляція: повернуто лише атомарний запис статусу (`lib/db.ts`, `app/quotes/actions.ts`).
+
+```text
+# audit regression · 12b3397+worktree · build pIHyTFonxuS3zFVHqfucQ · pid 5400 · 2026-09-27T16:07:44Z
+# 1. budget parsing (value that reached n8n, or a form error)
+ok   budget "1500" -> 1500 — n8n got 1500
+ok   budget "1 500" -> 1500 — n8n got 1500
+ok   budget "1500,50" -> 1500.5 — n8n got 1500.5
+ok   budget "1500.50" -> 1500.5 — n8n got 1500.5
+ok   budget "1 500,5" -> 1500.5 — n8n got 1500.5
+ok   budget "" -> null — n8n got null
+ok   budget "1,2,3" -> form error — form error
+ok   budget "1,500" -> form error — form error
+ok   budget "1e3" -> form error — form error
+ok   budget "0x10" -> form error — form error
+ok   budget "-5" -> form error — form error
+ok   budget "12345678901234" -> form error — form error
+# 2. signed callback: event suffix must match data.status
+ok   quote-request.completed + status "failed" -> 400 — got 400, page: Готуємо кошторис
+ok   quote-request.failed + status "completed" -> 400 — got 400, page: Готуємо кошторис
+ok   quote-request.completed + status "completed" -> 202 — got 202, page: Кошторис готовий
+# 3. race: n8n calls back before answering 202, after 0..400 ms
+FAIL 21 quotes with a completed callback all end "Кошторис готовий" — 40 ms: callback 202, page "Готуємо кошторис"; 60 ms: callback 202, page "Готуємо кошторис"; 80 ms: callback 202, page "Готуємо кошторис"; 100 ms: callback 202, page "Готуємо кошторис"
+result: 15 ok, 1 FAIL
+```
+
+## `task-d/branch/audit-after.txt`
+
+Ті самі перевірки на закомміченому виправленому коді.
+
+```text
+# audit regression · c3545ea · build iInU1UoL3VivlAedXcNzD · pid 6290 · 2026-09-27T16:12:10Z
+# 1. budget parsing (value that reached n8n, or a form error)
+ok   budget "1500" -> 1500 — n8n got 1500
+ok   budget "1 500" -> 1500 — n8n got 1500
+ok   budget "1500,50" -> 1500.5 — n8n got 1500.5
+ok   budget "1500.50" -> 1500.5 — n8n got 1500.5
+ok   budget "1 500,5" -> 1500.5 — n8n got 1500.5
+ok   budget "" -> null — n8n got null
+ok   budget "1,2,3" -> form error — form error
+ok   budget "1,500" -> form error — form error
+ok   budget "1e3" -> form error — form error
+ok   budget "0x10" -> form error — form error
+ok   budget "-5" -> form error — form error
+ok   budget "12345678901234" -> form error — form error
+# 2. signed callback: event suffix must match data.status
+ok   quote-request.completed + status "failed" -> 400 — got 400, page: Готуємо кошторис
+ok   quote-request.failed + status "completed" -> 400 — got 400, page: Готуємо кошторис
+ok   quote-request.completed + status "completed" -> 202 — got 202, page: Кошторис готовий
+# 3. race: n8n calls back before answering 202, after 0..400 ms
+ok   21 quotes with a completed callback all end "Кошторис готовий"
+result: 16 ok, 0 FAIL
+```
+
+## `task-d/branch/scenario-after-audit.txt`
+
+Повний сценарій після виправлень за аудитом: форма без JS → мок n8n → підписаний колбек → «Кошторис готовий», матриця колбека.
+
+```text
+# scenario · copy 2026-quitcode-04-agent-skills-hw c3545ea · build wUFI-IBBOdbJ3DGbUgXoI · server pid 6362 · 2026-09-27T16:12:25Z
+mock: tools/mock-n8n.mjs --mode respond-202 --delay 5000 (from the working repo, --env-file=.env.local of the copy)
+.env.local keys (names only): N8N_WEBHOOK_BASE_URL N8N_WEBHOOK_TOKEN N8N_CALLBACK_SECRET APP_BASE_URL 
+GET /quotes/new -> 200
+form fields posted: $ACTION_REF_1 $ACTION_1:0 $ACTION_1:1 $ACTION_KEY company email description budget
+no-JS POST /quotes/new -> HTTP 303 in 0.134884 s (TTFB 0.134717 s)
+redirect / status page: /quotes/b89f7792-1c10-4bbe-9a3a-209f7bfd8fb9
+mock log right after the POST:
+  | [mock-n8n] 2026-09-27T16:12:24.973Z listening on http://127.0.0.1:5678  mode=respond-202  delay=5000 ms  cloud-timeout=off
+  | [mock-n8n] 2026-09-27T16:12:24.974Z production URLs: POST http://127.0.0.1:5678/webhook/<path>
+  | [mock-n8n] 2026-09-27T16:12:24.974Z test URLs: not registered (start with --listen to open them for 120 s)
+  | [mock-n8n] 2026-09-27T16:12:24.974Z header auth: x-n8n-token required (N8N_WEBHOOK_TOKEN is set)
+  | [mock-n8n] 2026-09-27T16:12:24.974Z callbacks: signed, sent to the request's callbackUrl after 5000 ms (async modes)
+  | [mock-n8n] 2026-09-27T16:12:25.402Z POST /webhook/quote-request -> 202 in 1 ms auth=ok idempotency=new | headers: accept,accept-language,content-type,idempotency-key,user-agent,x-correlation-id,x-n8n-token | body 256 B sha256=30c51dc6845517d3dadc5a4181ee6347348eebb729b334313b2e5e9614c29b56
+  | [mock-n8n] 2026-09-27T16:12:25.402Z workflow 0381e841-87a4-4d5a-bd78-006dbc949150 running for 5000 ms, then callback event=quote-request.completed
+/quotes/<id> before the callback:  LeadDesk ← Studio Nova Кошторис для Scenario Test LLC Запит від 27 вер. 2026 р., 19:12 Готуємо кошторис Зазвичай це займає одну-дві хвилини. Сторінка оновиться сама. 
+mock log after the workflow (--mode respond-202 --delay 5000), 6 s after the POST:
+  | [mock-n8n] 2026-09-27T16:12:24.973Z listening on http://127.0.0.1:5678  mode=respond-202  delay=5000 ms  cloud-timeout=off
+  | [mock-n8n] 2026-09-27T16:12:24.974Z production URLs: POST http://127.0.0.1:5678/webhook/<path>
+  | [mock-n8n] 2026-09-27T16:12:24.974Z test URLs: not registered (start with --listen to open them for 120 s)
+  | [mock-n8n] 2026-09-27T16:12:24.974Z header auth: x-n8n-token required (N8N_WEBHOOK_TOKEN is set)
+  | [mock-n8n] 2026-09-27T16:12:24.974Z callbacks: signed, sent to the request's callbackUrl after 5000 ms (async modes)
+  | [mock-n8n] 2026-09-27T16:12:25.402Z POST /webhook/quote-request -> 202 in 1 ms auth=ok idempotency=new | headers: accept,accept-language,content-type,idempotency-key,user-agent,x-correlation-id,x-n8n-token | body 256 B sha256=30c51dc6845517d3dadc5a4181ee6347348eebb729b334313b2e5e9614c29b56
+  | [mock-n8n] 2026-09-27T16:12:25.402Z workflow 0381e841-87a4-4d5a-bd78-006dbc949150 running for 5000 ms, then callback event=quote-request.completed
+  | [mock-n8n] 2026-09-27T16:12:30.627Z callback POST http://127.0.0.1:3000/api/n8n/quote-request -> 202 in 223 ms (try 1/3) event=quote-request.completed body 382 B sha256=bcfb28cb61fa2e4589afc95785ed0525796067814857d5467c91a51087b949b2
+/quotes/<id> after the callback:  LeadDesk ← Studio Nova Кошторис для Scenario Test LLC Запит від 27 вер. 2026 р., 19:12 Кошторис готовий Завантажте PDF за посиланням нижче. Завантажити PDF 
+callback matrix (send-signed-callback.mjs --url http://127.0.0.1:3000/api/n8n/quote-request, secret via --env-file):
+  | send-signed-callback · http://127.0.0.1:3000/api/n8n/quote-request · event quote-request · success cases skipped (no --request-key)
+  | ok   unknown event in the path                expected 404, got 404
+  | ok   wrong content-type (text/plain)          expected 415, got 415
+  | ok   body larger than 64 KB                   expected 413, got 413
+  | ok   timestamp 301 s in the past              expected 401, got 401
+  | ok   timestamp 301 s in the future            expected 401, got 401
+  | ok   wrong signature                          expected 401, got 401
+  | ok   body reformatted after signing           expected 401, got 401
+  | 7/7 as expected
+server log: 25 lines; lines with the submitted email / company / description: 0
+server log lines mentioning n8n / quote / callback:
+  | db:insertQuote: 1
+  | {"n8n":"out","event":"quote-request","correlationId":"80977ff0-1970-4feb-9f13-0d3f4569fbe2","attempt":1,"status":202,"ms":13}
+  | db:updateQuote: 1
+  | db:getQuote: 1
+  | db:claimCallbackKey: 1
+  | db:getQuoteByRequestKey: 1
+  | db:updateQuote: 2
+  | {"n8n":"in","event":"quote-request","correlationId":"80977ff0-1970-4feb-9f13-0d3f4569fbe2","status":202,"bytes":382,"ms":186}
+  | db:getQuote: 2
+  | {"n8n":"in","event":"no-such-event-xyz","correlationId":"8d95ba0f-b613-4fae-b597-23c6eb87eb76","status":404,"bytes":0,"ms":0}
+  | {"n8n":"in","event":"quote-request","correlationId":"ceec3259-b252-4b10-bd36-d8a5f684eb06","status":415,"bytes":0,"ms":0}
+  | {"n8n":"in","event":"quote-request","correlationId":"1f33c42e-8bb5-4ec3-a48b-32970a5f44e4","status":413,"bytes":0,"ms":0}
+  | {"n8n":"in","event":"quote-request","correlationId":"231c2b0d-a481-4bd4-9d9c-6adca52e4d34","status":401,"bytes":382,"ms":0}
+  | {"n8n":"in","event":"quote-request","correlationId":"10c9012c-c4fb-4c43-a389-a68dac70f3d7","status":401,"bytes":382,"ms":0}
+  | {"n8n":"in","event":"quote-request","correlationId":"449369e2-c572-498e-866a-3a7717034ff6","status":401,"bytes":382,"ms":0}
+  | {"n8n":"in","event":"quote-request","correlationId":"bfbe91c3-a3b9-4ec1-aa19-8e2032f3415e","status":401,"bytes":447,"ms":1}
+```
+
+## `task-d/branch/check-contract-after-audit.txt`
+
+`check-contract.mjs` на коді після виправлень за аудитом.
+
+```text
+check-contract · root /Users/hryhorii_haponiuk/Desktop/Work Folder/Agentic Course/2026-quitcode-04-agent-skills-hw · full
+n8n callers: lib/n8n/client.ts · callback routes: app/api/n8n/[event]/route.ts
+C1   PASS no test webhook URL (/webhook-test/) in code or .env.example
+C2   PASS no NEXT_PUBLIC_ variable for n8n / webhook / callback settings
+C3   PASS requests to n8n only from lib/n8n/client.ts
+C4   PASS the module that calls n8n starts with import "server-only"
+C5   PASS every fetch to n8n has signal: AbortSignal.timeout(...)
+C6   PASS requests to n8n send x-n8n-token, idempotency-key, x-correlation-id
+C7   PASS request body is the envelope { version: 1, event, data }
+C8   PASS a Server Action that triggers n8n does it inside after()
+C9   PASS callback route reads the raw body; no request.json(), no JSON.parse before the signature check
+C10  PASS callback signature: HMAC + length check + timingSafeEqual, never ===
+C11  PASS callback timestamp checked against a 300 s window
+C12  PASS callback idempotency-key read and bound to data.jobId of the signed body
+C13  PASS no export const runtime = "edge"
+C14  PASS no bodies, form data, personal data, tokens or signatures in console.* of n8n code
+C15  PASS .env.example: N8N_WEBHOOK_BASE_URL, N8N_WEBHOOK_TOKEN, N8N_CALLBACK_SECRET, APP_BASE_URL
+Summary: 15 PASS, 0 FAIL, 0 N/A
+```
