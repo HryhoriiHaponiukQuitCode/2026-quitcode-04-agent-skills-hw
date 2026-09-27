@@ -93,9 +93,10 @@ export type Quote = {
   createdAt: string; updatedAt: string;
 };
 // + insertQuote(), getQuote(id), getQuoteByRequestKey(key)
-// + updateQuote(id, patch, ifStatus?): boolean — with ifStatus the check and the write are ONE step
+// + updateQuote(id, patch, ifStatus?: status | status[]): boolean — with ifStatus the check and the write are ONE step
 //   (UPDATE … WHERE id = $1 AND status = $ifStatus); a separate read, then a write, loses a callback in between
-// + claimCallbackKey(key): boolean  — false if the key was already claimed (unique constraint in prod)
+// + claimCallbackKey(key): boolean  — false if the key was already claimed (unique constraint in prod);
+//   keep keys about a day, then prune: n8n re-signs a retried callback, so the 300 s window does not bound retries
 // + releaseCallbackKey(key): void   — undo the claim when processing failed after it
 ```
 
@@ -174,9 +175,12 @@ const HANDLERS: Record<string, (data: Callback["data"]) => Promise<boolean>> = {
   "quote-request": async (data) => {
     const quote = await db.getQuoteByRequestKey(data.requestIdempotencyKey);
     if (!quote) return false;
-    await db.updateQuote(quote.id, data.status === "completed"
-      ? { status: "ready", documentUrl: safeDocumentUrl(data.result?.documentUrl) }
-      : { status: "failed" });
+    if (data.status === "completed") {
+      await db.updateQuote(quote.id, { status: "ready", documentUrl: safeDocumentUrl(data.result?.documentUrl) });
+    } else {
+      // "ready" is final: a failed callback of another n8n execution (new jobId) must not take the PDF away
+      await db.updateQuote(quote.id, { status: "failed" }, ["queued", "sent"]);
+    }
     return true;
   },
 };
