@@ -56,10 +56,12 @@ export async function submitLead(
 
   // The visitor does not wait for n8n (server-after-nonblocking). Only what the CRM workflow needs goes
   // out: no IP, user agent, raw payload or internal fields. The key is derived from the lead, so a
-  // retry of the same lead is recognised by n8n as a repeat.
+  // retry of the same lead is recognised by n8n as a repeat. The field list is a change for the client's
+  // workflow: agree it with the workflow owner before deploying (docs/n8n-integrations.md, lead-created).
   after(async () => {
+    let delivered = false;
     try {
-      await triggerWorkflow(
+      const result = await triggerWorkflow(
         "lead-created",
         {
           leadId: lead.id,
@@ -75,10 +77,14 @@ export async function submitLead(
         { idempotencyKey: `lead-created:${lead.id}`, correlationId: randomUUID() },
       );
       // triggerWorkflow logs the status of every attempt itself (event, correlation id, status, ms).
+      delivered = result.ok;
     } catch (error) {
       const reason = error instanceof Error ? error.name : "error"; // never the message: it may echo config
       console.error(`Failed to send lead ${lead.id} to n8n: ${reason}`);
     }
+    // Persisted marker: leads with this audit entry were not accepted by n8n and can be re-sent with
+    // the same idempotency key.
+    if (!delivered) await logAudit("lead.n8n_failed", lead.id);
   });
 
   await logAudit("lead.created", lead.id);
