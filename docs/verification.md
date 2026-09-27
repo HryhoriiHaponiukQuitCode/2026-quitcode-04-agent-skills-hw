@@ -15,44 +15,44 @@
 ## Усі змінені файли гілки
 
 <!-- changed-files:start -->
-Згенеровано `node docs/evidence/bin/changed-files.mjs --write` з `git diff --name-status main...HEAD`; `--check` падає, якщо таблиця розійшлась із діфом. **Усього 149 файлів**: код застосунку й `.env.example` — 19, вендорений скіл Vercel — 75, власні скіли — 10, документи й докази — 44, інше — 1 (`skills-lock.json`). Поза цим списком гілка не змінює нічого: `tools/`, `materials/`, `.github/`, `.coderabbit.yaml`, `package.json`, `package-lock.json` — без змін.
+Згенеровано `node docs/evidence/bin/changed-files.mjs --write` з `git diff --name-status main...HEAD`; `--check` падає, якщо таблиця розійшлась із діфом. **Усього 151 файлів**: код застосунку й `.env.example` — 19, вендорений скіл Vercel — 75, власні скіли — 10, документи й докази — 46, інше — 1 (`skills-lock.json`). Поза цим списком гілка не змінює нічого: `tools/`, `materials/`, `.github/`, `.coderabbit.yaml`, `package.json`, `package-lock.json` — без змін.
 
 | Файл | Статус | Task | Коміти | Що змінено |
 |---|---|---|---|---|
 | `.claude/skills/building-client-form/SKILL.md` | додано | B | `d4a9ca7` `9297071` | скіл лише з інструкцій; v0.1.1 — приховане поле замість `bind` |
-| `.claude/skills/integrating-n8n-webhooks/SKILL.md` | додано | C | `8c6fbeb` `eab812c` `825fec0` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit |
-| `.claude/skills/integrating-n8n-webhooks/references/code-templates.md` | додано | C | `8c6fbeb` `825fec0` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit |
-| `.claude/skills/integrating-n8n-webhooks/references/contract.md` | додано | C | `8c6fbeb` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit |
-| `.claude/skills/integrating-n8n-webhooks/references/n8n-setup.md` | додано | C | `8c6fbeb` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit |
-| `.claude/skills/integrating-n8n-webhooks/references/response-modes.md` | додано | C | `8c6fbeb` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit |
-| `.claude/skills/integrating-n8n-webhooks/scripts/check-contract.mjs` | додано | C | `8c6fbeb` `eab812c` `825fec0` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit |
-| `.claude/skills/integrating-n8n-webhooks/scripts/mock-n8n.mjs` | додано | C | `8c6fbeb` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit |
-| `.claude/skills/integrating-n8n-webhooks/scripts/selftest-check-contract.mjs` | додано | C | `8c6fbeb` `eab812c` `825fec0` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit |
-| `.claude/skills/integrating-n8n-webhooks/scripts/send-signed-callback.mjs` | додано | C | `8c6fbeb` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit |
+| `.claude/skills/integrating-n8n-webhooks/SKILL.md` | додано | C | `8c6fbeb` `eab812c` `825fec0` `c3545ea` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit; v0.1.3 — шаблони після аудиту: статус одним записом, строгий бюджет, `event` ↔ `status` |
+| `.claude/skills/integrating-n8n-webhooks/references/code-templates.md` | додано | C | `8c6fbeb` `825fec0` `c3545ea` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit; v0.1.3 — шаблони після аудиту: статус одним записом, строгий бюджет, `event` ↔ `status` |
+| `.claude/skills/integrating-n8n-webhooks/references/contract.md` | додано | C | `8c6fbeb` `c3545ea` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit; v0.1.3 — шаблони після аудиту: статус одним записом, строгий бюджет, `event` ↔ `status` |
+| `.claude/skills/integrating-n8n-webhooks/references/n8n-setup.md` | додано | C | `8c6fbeb` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit; v0.1.3 — шаблони після аудиту: статус одним записом, строгий бюджет, `event` ↔ `status` |
+| `.claude/skills/integrating-n8n-webhooks/references/response-modes.md` | додано | C | `8c6fbeb` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit; v0.1.3 — шаблони після аудиту: статус одним записом, строгий бюджет, `event` ↔ `status` |
+| `.claude/skills/integrating-n8n-webhooks/scripts/check-contract.mjs` | додано | C | `8c6fbeb` `eab812c` `825fec0` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit; v0.1.3 — шаблони після аудиту: статус одним записом, строгий бюджет, `event` ↔ `status` |
+| `.claude/skills/integrating-n8n-webhooks/scripts/mock-n8n.mjs` | додано | C | `8c6fbeb` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit; v0.1.3 — шаблони після аудиту: статус одним записом, строгий бюджет, `event` ↔ `status` |
+| `.claude/skills/integrating-n8n-webhooks/scripts/selftest-check-contract.mjs` | додано | C | `8c6fbeb` `eab812c` `825fec0` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit; v0.1.3 — шаблони після аудиту: статус одним записом, строгий бюджет, `event` ↔ `status` |
+| `.claude/skills/integrating-n8n-webhooks/scripts/send-signed-callback.mjs` | додано | C | `8c6fbeb` | скіл n8n; v0.1.1 — C10/C14 після Task D; v0.1.2 — C12 і `safeDocumentUrl` у шаблоні після рев'ю CodeRabbit; v0.1.3 — шаблони після аудиту: статус одним записом, строгий бюджет, `event` ↔ `status` |
 | `.claude/skills/vercel-react-best-practices/AGENTS.md` | додано | A | `3c354e2` | скіл Vercel, вендорено без змін (`skills@1.7.0 --copy`, тег `agent-skills-063bee94…`) |
 | `.claude/skills/vercel-react-best-practices/README.md` | додано | A | `3c354e2` | скіл Vercel, вендорено без змін (`skills@1.7.0 --copy`, тег `agent-skills-063bee94…`) |
 | `.claude/skills/vercel-react-best-practices/SKILL.md` | додано | A | `3c354e2` | скіл Vercel, вендорено без змін (`skills@1.7.0 --copy`, тег `agent-skills-063bee94…`) |
 | `.claude/skills/vercel-react-best-practices/rules/*.md` (72 файли) | додано | A | `3c354e2` | правило скіла Vercel, вендорено без змін (72 файли разом) |
 | `.env.example` | змінено | D | `c94da6f` `6832770` | 4 ключі контракту з прогону B1; прибрано `N8N_WEBHOOK_URL` з `/webhook-test/` |
 | `app/actions.ts` | змінено | A, D | `01464c9` `05aecc2` `a362951` | A: `authorizeLead` у `updateLeadStatus`/`deleteLead` (`server-auth-actions`); D: `submitLead` → `triggerWorkflow("lead-created")` в `after()`, при невдачі — аудит `lead.n8n_failed` (рев'ю CodeRabbit) |
-| `app/api/n8n/[event]/route.ts` | додано | D | `c94da6f` | прогін B1: колбек-роут з HMAC, вікном 300 с, ідемпотентністю |
+| `app/api/n8n/[event]/route.ts` | додано | D | `c94da6f` `400a450` | прогін B1: колбек-роут з HMAC, вікном 300 с, ідемпотентністю; після аудиту — суфікс `event` має збігатися з `data.status` |
 | `app/dashboard/layout.tsx` | змінено | A | `e84f206` | `server-cache-react`: `getWorkspace(user.workspaceSlug)` замість `{ slug }` |
 | `app/dashboard/leads/[id]/page.tsx` | змінено | A | `e84f206` | `server-cache-react`: `getWorkspace(user.workspaceSlug)` замість `{ slug }` |
 | `app/dashboard/page.tsx` | змінено | A | `e289c5d` `e84f206` `281ff34` `3d3cf84` | `async-parallel`, `server-serialization` (`LeadRow`), `server-cache-react` (`getWorkspace(slug)`), `async-suspense-boundaries` |
 | `app/quotes/[id]/page.tsx` | додано | D | `c94da6f` | прогін B1: сторінка статусу запиту |
-| `app/quotes/actions.ts` | додано | D | `c94da6f` | прогін B1: Server Action `requestQuote`, n8n в `after()` |
+| `app/quotes/actions.ts` | додано | D | `c94da6f` `568ccac` | прогін B1: Server Action `requestQuote`, n8n в `after()`; після аудиту — `sent`/`failed` лише з `queued` одним записом |
 | `app/quotes/new/page.tsx` | додано | D | `c94da6f` | прогін B1: сторінка форми кошторису |
 | `components/auto-refresh.tsx` | додано | D | `c94da6f` `8dc7c03` | прогін B1: `router.refresh()` кожні 5 с; після рев'ю CodeRabbit — не більше 60 разів |
 | `components/dashboard-header.tsx` | змінено | A | `e84f206` | `server-cache-react`: `getWorkspace(user.workspaceSlug)` замість `{ slug }` |
 | `components/leads-table.tsx` | змінено | A | `281ff34` | `server-serialization`: тип `LeadRow` (5 полів) замість `Lead` |
 | `components/leads-toolbar.tsx` | змінено | A | `211f8fe` `7a55dd8` | `bundle-conditional` (`import("exceljs")` у кліку), `bundle-dynamic-imports` (`SourcesChart` через `next/dynamic`) |
-| `components/quote-form.tsx` | додано | D | `c94da6f` `8dc7c03` | прогін B1: форма з `useActionState`; після рев'ю CodeRabbit — `aria-invalid`, `aria-describedby`, `role="alert"` |
-| `docs/ab-validation.md` | додано | D | `266f9d1` `eab812c` `bd6ae06` `2f61e6a` `4c083f3` `103cf57` | звіт A/B і перенесення прогону B |
+| `components/quote-form.tsx` | додано | D | `c94da6f` `8dc7c03` `9d056af` | прогін B1: форма з `useActionState`; після рев'ю CodeRabbit — `aria-invalid`, `aria-describedby`, `role="alert"`; після аудиту — `inputMode="decimal"` |
+| `docs/ab-validation.md` | додано | D | `266f9d1` `eab812c` `bd6ae06` `2f61e6a` `4c083f3` `103cf57` `3b22311` | звіт A/B і перенесення прогону B |
 | `docs/ab/a-without-skill-run2.diff` | додано | D | `8cf9d4a` `88b2e8b` | повний діф прогону агента від тегу `base` копії |
 | `docs/ab/a-without-skill.diff` | додано | D | `8cf9d4a` `88b2e8b` | повний діф прогону агента від тегу `base` копії |
 | `docs/ab/b-with-skill-run2.diff` | додано | D | `8cf9d4a` `88b2e8b` | повний діф прогону агента від тегу `base` копії |
 | `docs/ab/b-with-skill.diff` | додано | D | `8cf9d4a` `88b2e8b` | повний діф прогону агента від тегу `base` копії |
-| `docs/evidence/bin/changed-files.mjs` | додано | A–E | `2f61e6a` `0923e70` `103cf57` | обв'язка сесій і вимірів, пакування доказів |
+| `docs/evidence/bin/changed-files.mjs` | додано | A–E | `2f61e6a` `0923e70` `103cf57` `3b22311` | обв'язка сесій і вимірів, пакування доказів |
 | `docs/evidence/bin/pack-evidence.mjs` | додано | A–E | `bd6ae06` `0923e70` | обв'язка сесій і вимірів, пакування доказів |
 | `docs/evidence/bin/run-ab-session.sh` | додано | A–E | `8cf9d4a` | обв'язка сесій і вимірів, пакування доказів |
 | `docs/evidence/bin/run-readonly-session.sh` | додано | A–E | `913f992` | обв'язка сесій і вимірів, пакування доказів |
@@ -72,7 +72,9 @@
 | `docs/evidence/task-c/bad-callback.txt` | додано | C | `2f4fa4f` | докази Task C |
 | `docs/evidence/task-c/check-contract-main.txt` | додано | C | `2f4fa4f` | докази Task C |
 | `docs/evidence/task-c/selftest.txt` | додано | C | `2f4fa4f` `eab812c` | докази Task C |
-| `docs/evidence/task-d/branch/summary.md` | додано | D | `bd6ae06` `0923e70` | докази Task D |
+| `docs/evidence/task-d/audit-regress.mjs` | додано | D | `3b22311` | докази Task D |
+| `docs/evidence/task-d/audit-regress.sh` | додано | D | `3b22311` | докази Task D |
+| `docs/evidence/task-d/branch/summary.md` | додано | D | `bd6ae06` `0923e70` `3b22311` | докази Task D |
 | `docs/evidence/task-d/lead-check.sh` | додано | D | `266f9d1` | докази Task D |
 | `docs/evidence/task-d/probe/summary.md` | додано | D | `bd6ae06` | докази Task D |
 | `docs/evidence/task-d/probe/transcript.md` | додано | D | `bd6ae06` | докази Task D |
@@ -87,14 +89,14 @@
 | `docs/evidence/task-d/scenario.sh` | додано | D | `8cf9d4a` | докази Task D |
 | `docs/evidence/task-d/summary.md` | додано | D | `bd6ae06` | докази Task D |
 | `docs/evidence/task-e/summary.md` | додано | E2 | `bd6ae06` | докази Task E2 |
-| `docs/n8n-integrations.md` | додано | D | `c94da6f` `05aecc2` `a362951` | реєстр інтеграцій: `quote-request` (прогін B1), `lead-created` (доведення, `lead.n8n_failed`) |
+| `docs/n8n-integrations.md` | додано | D | `c94da6f` `05aecc2` `a362951` `3b22311` | реєстр інтеграцій: `quote-request` (прогін B1; формат `budget`, звірка `event` ↔ `status`), `lead-created` (доведення, `lead.n8n_failed`) |
 | `docs/skill-review.md` | додано | A | `eaf292a` `3c354e2` `77882b5` `bd6ae06` `2f61e6a` `103cf57` | рев'ю скіла Vercel до встановлення (історія правок — у шапці файлу) |
 | `docs/trigger-evals.md` | додано | E2 | `32e3177` `2f61e6a` `103cf57` | тест спрацювання n8n-скіла, 12 запитів |
-| `docs/verification.md` | додано | A–C | `git log main..HEAD -- docs/verification.md` | звіт перевірки Task A–C, ця таблиця, розділи «Після рев'ю CodeRabbit» і «Переписана історія» |
+| `docs/verification.md` | додано | A–C | `git log main..HEAD -- docs/verification.md` | звіт перевірки Task A–C, ця таблиця, розділи «Після рев'ю CodeRabbit», «Переписана історія», «Після аудиту» |
 | `lib/data.ts` | змінено | A | `e84f206` | `server-cache-react`: `getCurrentUser` і `getWorkspace(slug: string)` у `cache()` |
-| `lib/db.ts` | змінено | D | `c94da6f` | прогін B1: сховище запитів і застовплених ключів колбеків |
+| `lib/db.ts` | змінено | D | `c94da6f` `568ccac` | прогін B1: сховище запитів і застовплених ключів колбеків; після аудиту — `updateQuote(…, ifStatus)` |
 | `lib/n8n/client.ts` | додано | D | `c94da6f` | прогін B1: єдиний модуль, що говорить з n8n |
-| `lib/quote-form.ts` | додано | D | `c94da6f` | прогін B1: розбір і валідація форми кошторису |
+| `lib/quote-form.ts` | додано | D | `c94da6f` `9d056af` | прогін B1: розбір і валідація форми кошторису; після аудиту — бюджет з десятковими, без видалення ком |
 | `lib/types.ts` | змінено | D | `c94da6f` | прогін B1: типи `Quote`, `QuoteStatus` |
 | `skills-lock.json` | додано | A | `3c354e2` | закріплення версії скіла Vercel: `ref` + `computedHash` |
 <!-- changed-files:end -->
