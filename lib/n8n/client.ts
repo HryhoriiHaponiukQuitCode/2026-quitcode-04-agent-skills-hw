@@ -2,6 +2,11 @@ import "server-only";
 
 // The only module that talks to n8n. Contract: .claude/skills/integrating-n8n-webhooks.
 
+// Thrown before any request when a setting is missing or wrong; callers log its name, never the message.
+export class N8nConfigError extends Error {
+  name = "N8nConfigError";
+}
+
 const TIMEOUT_MS = 10_000;
 const RETRY_DELAYS_MS = [1_000, 3_000]; // 2 retries -> 3 attempts in total
 
@@ -22,13 +27,13 @@ export async function triggerWorkflow(
 ): Promise<TriggerResult> {
   const base = process.env.N8N_WEBHOOK_BASE_URL;
   const token = process.env.N8N_WEBHOOK_TOKEN;
-  if (!base || !token) throw new Error("n8n is not configured (N8N_WEBHOOK_BASE_URL, N8N_WEBHOOK_TOKEN)");
-  if (base.includes("/webhook-test")) throw new Error("N8N_WEBHOOK_BASE_URL must be a production /webhook URL");
+  if (!base || !token) throw new N8nConfigError("n8n is not configured (N8N_WEBHOOK_BASE_URL, N8N_WEBHOOK_TOKEN)");
+  if (base.includes("/webhook-test")) throw new N8nConfigError("N8N_WEBHOOK_BASE_URL must be a production /webhook URL");
 
   const envelope: Record<string, unknown> = { version: 1, event, data };
   if (callback) {
     const app = process.env.APP_BASE_URL;
-    if (!app) throw new Error("APP_BASE_URL is not configured");
+    if (!app) throw new N8nConfigError("APP_BASE_URL is not configured");
     envelope.callbackUrl = `${app.replace(/\/+$/, "")}/api/n8n/${event}`;
   }
   const body = JSON.stringify(envelope);

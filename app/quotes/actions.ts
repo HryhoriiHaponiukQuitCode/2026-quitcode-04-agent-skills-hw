@@ -40,8 +40,10 @@ export async function requestQuote(
         { idempotencyKey: quote.requestKey, correlationId: quote.correlationId, callback: true },
       );
       ok = result.ok;
-    } catch {
-      console.error(JSON.stringify({ n8n: "out", event: "quote-request", correlationId: quote.correlationId, status: "not-configured" }));
+    } catch (error) {
+      // N8nConfigError for a missing or wrong setting; the name only, the message may echo configuration
+      const reason = error instanceof Error ? error.name : "error";
+      console.error(JSON.stringify({ n8n: "out", event: "quote-request", correlationId: quote.correlationId, status: reason }));
     }
     // Only if still queued, checked in the same write: with a fast workflow the callback may already have
     // set "ready", also between a separate read and this write.
