@@ -47,12 +47,12 @@
 | `components/leads-table.tsx` | змінено | A | `281ff34` | `server-serialization`: тип `LeadRow` (5 полів) замість `Lead` |
 | `components/leads-toolbar.tsx` | змінено | A | `211f8fe` `7a55dd8` | `bundle-conditional` (`import("exceljs")` у кліку), `bundle-dynamic-imports` (`SourcesChart` через `next/dynamic`) |
 | `components/quote-form.tsx` | додано | D | `c94da6f` `8dc7c03` | прогін B1: форма з `useActionState`; після рев'ю CodeRabbit — `aria-invalid`, `aria-describedby`, `role="alert"` |
-| `docs/ab-validation.md` | додано | D | `266f9d1` `eab812c` `bd6ae06` `2f61e6a` `4c083f3` `3b26462` | звіт A/B і перенесення прогону B |
+| `docs/ab-validation.md` | додано | D | `266f9d1` `eab812c` `bd6ae06` `2f61e6a` `4c083f3` `103cf57` | звіт A/B і перенесення прогону B |
 | `docs/ab/a-without-skill-run2.diff` | додано | D | `8cf9d4a` `88b2e8b` | повний діф прогону агента від тегу `base` копії |
 | `docs/ab/a-without-skill.diff` | додано | D | `8cf9d4a` `88b2e8b` | повний діф прогону агента від тегу `base` копії |
 | `docs/ab/b-with-skill-run2.diff` | додано | D | `8cf9d4a` `88b2e8b` | повний діф прогону агента від тегу `base` копії |
 | `docs/ab/b-with-skill.diff` | додано | D | `8cf9d4a` `88b2e8b` | повний діф прогону агента від тегу `base` копії |
-| `docs/evidence/bin/changed-files.mjs` | додано | A–E | `2f61e6a` `0923e70` `3b26462` | обв'язка сесій і вимірів, пакування доказів |
+| `docs/evidence/bin/changed-files.mjs` | додано | A–E | `2f61e6a` `0923e70` `103cf57` | обв'язка сесій і вимірів, пакування доказів |
 | `docs/evidence/bin/pack-evidence.mjs` | додано | A–E | `bd6ae06` `0923e70` | обв'язка сесій і вимірів, пакування доказів |
 | `docs/evidence/bin/run-ab-session.sh` | додано | A–E | `8cf9d4a` | обв'язка сесій і вимірів, пакування доказів |
 | `docs/evidence/bin/run-readonly-session.sh` | додано | A–E | `913f992` | обв'язка сесій і вимірів, пакування доказів |
@@ -88,8 +88,8 @@
 | `docs/evidence/task-d/summary.md` | додано | D | `bd6ae06` | докази Task D |
 | `docs/evidence/task-e/summary.md` | додано | E2 | `bd6ae06` | докази Task E2 |
 | `docs/n8n-integrations.md` | додано | D | `c94da6f` `05aecc2` `a362951` | реєстр інтеграцій: `quote-request` (прогін B1), `lead-created` (доведення, `lead.n8n_failed`) |
-| `docs/skill-review.md` | додано | A | `eaf292a` `3c354e2` `77882b5` `bd6ae06` `2f61e6a` `3b26462` | рев'ю скіла Vercel до встановлення (історія правок — у шапці файлу) |
-| `docs/trigger-evals.md` | додано | E2 | `32e3177` `2f61e6a` `3b26462` | тест спрацювання n8n-скіла, 12 запитів |
+| `docs/skill-review.md` | додано | A | `eaf292a` `3c354e2` `77882b5` `bd6ae06` `2f61e6a` `103cf57` | рев'ю скіла Vercel до встановлення (історія правок — у шапці файлу) |
+| `docs/trigger-evals.md` | додано | E2 | `32e3177` `2f61e6a` `103cf57` | тест спрацювання n8n-скіла, 12 запитів |
 | `docs/verification.md` | додано | A–C | `git log main..HEAD -- docs/verification.md` | звіт перевірки Task A–C, ця таблиця, розділи «Після рев'ю CodeRabbit» і «Переписана історія» |
 | `lib/data.ts` | змінено | A | `e84f206` | `server-cache-react`: `getCurrentUser` і `getWorkspace(slug: string)` у `cache()` |
 | `lib/db.ts` | змінено | D | `c94da6f` | прогін B1: сховище запитів і застовплених ключів колбеків |
