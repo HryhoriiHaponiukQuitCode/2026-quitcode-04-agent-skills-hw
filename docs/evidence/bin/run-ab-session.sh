@@ -11,6 +11,9 @@ OUT=$(mkdir -p "$1" && cd "$1" && pwd); WORK=$(cd "$2" && pwd)
 PROMPT=$(cd "$(dirname "$3")" && pwd)/$(basename "$3"); RESUME=${4:-}
 MODEL=${MODEL:-opus}; EFFORT=${EFFORT:-high}
 ALLOW="Skill,Read,Grep,Glob,Edit,Write,Bash(npm run lint),Bash(npm run build),Bash(npx tsc --noEmit),Bash(git status*),Bash(git diff*),Bash(node .claude/skills/integrating-n8n-webhooks/scripts/check-contract.mjs*)"
+# ALLOW_EXTRA (unset for runs a1, a2, b1, b2): more allow rules, the same for both arms of a pair. Pair a3/b3 adds
+# the argument forms a2 was refused (`npm run lint --prefix …`, `npx tsc --noEmit -p …`).
+ALLOW="$ALLOW${ALLOW_EXTRA:+,$ALLOW_EXTRA}"
 DENY="WebFetch,WebSearch,NotebookEdit,Read(//Users/hryhorii_haponiuk/Desktop/**),Read(~/.claude/**),Read(//private/tmp/**),Read(//tmp/**),Read(//private/var/folders/**)"
 TAG=${RESUME:+-resume}
 {
