@@ -34,12 +34,13 @@ const HANDLERS: Record<string, (data: Callback["data"]) => Promise<boolean>> = {
   "quote-request": async (data) => {
     const quote = await db.getQuoteByRequestKey(data.requestIdempotencyKey);
     if (!quote) return false;
-    await db.updateQuote(
-      quote.id,
-      data.status === "completed"
-        ? { status: "ready", documentUrl: safeDocumentUrl(data.result?.documentUrl) }
-        : { status: "failed" },
-    );
+    if (data.status === "completed") {
+      await db.updateQuote(quote.id, { status: "ready", documentUrl: safeDocumentUrl(data.result?.documentUrl) });
+    } else {
+      // "ready" is final: a failed callback of another n8n execution (new jobId) must not take the PDF away.
+      // Checked in the same write; a skipped write is still an accepted callback.
+      await db.updateQuote(quote.id, { status: "failed" }, ["queued", "sent"]);
+    }
     return true;
   },
 };
