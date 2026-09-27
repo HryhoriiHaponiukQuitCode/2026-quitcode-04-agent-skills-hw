@@ -1,8 +1,0 @@
-# Browser smoke test after all Task A fixes · 3d3cf84 · 2026-09-27 · production build (next start)
-# In-app browser (Claude desktop), user Olena via demo login.
-/dashboard: 5 stats cards rendered [172, 51, 14, 73%, 3 289 USD]; table rows 172; JS resources on open 9
-"Показати графік джерел": 6 recharts bars; JS resources 9 -> 10 (chart chunk loaded on click)
-"Експорт в Excel": blob 18704 B, type application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
-  download name leads-2026-09-27.xlsx; JS resources 10 -> 11 (exceljs chunk loaded on click)
-console errors: none
-status change as owner: covered by attack-after.txt (olena -> contacted: HTTP 200, status changed)

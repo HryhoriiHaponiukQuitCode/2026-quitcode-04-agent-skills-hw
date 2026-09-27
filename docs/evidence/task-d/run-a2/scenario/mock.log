@@ -1,7 +1,0 @@
-[mock-n8n] 2026-09-27T14:15:20.961Z listening on http://127.0.0.1:5678  mode=respond-202  delay=5000 ms  cloud-timeout=off
-[mock-n8n] 2026-09-27T14:15:20.962Z production URLs: POST http://127.0.0.1:5678/webhook/<path>
-[mock-n8n] 2026-09-27T14:15:20.962Z test URLs: not registered (start with --listen to open them for 120 s)
-[mock-n8n] 2026-09-27T14:15:20.962Z header auth: x-n8n-token required (N8N_WEBHOOK_TOKEN is set)
-[mock-n8n] 2026-09-27T14:15:20.962Z callbacks: signed, sent to the request's callbackUrl after 5000 ms (async modes)
-[mock-n8n] 2026-09-27T14:15:21.382Z POST /webhook-test/quote-request -> 404 in 1 ms  | headers: accept,accept-language,content-type,user-agent | body 359 B sha256=868329207d6d05be21bc43f6df93f151855b22b2f8e7c98dbb16b50d488658ce
-[mock-n8n] 2026-09-27T14:15:45.001Z stopping (SIGTERM)

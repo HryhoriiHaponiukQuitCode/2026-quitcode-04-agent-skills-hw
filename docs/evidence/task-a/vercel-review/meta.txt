@@ -1,6 +1,0 @@
-claude: 2.1.282 (Claude Code)
-model: opus · effort: high
-prompt sha256: f99fd15a943c1cb12ecc5a0b95dead3f8de4adf2b7eaedec4330f2a61c46740a
-flags: --setting-sources project --strict-mcp-config --allowedTools Skill,Read,Grep,Glob --disallowedTools Edit,Write,NotebookEdit,Bash
-started: 2026-09-27T13:01:28Z
-exit: 0 · wall: 119s

@@ -1,4 +1,0 @@
-# Task B run-2 · JS enabled · in-app browser · production build of 9297071 + run-2 diff · lead_0002 as Olena
-empty submit:  aria-invalid="true", aria-describedby="lead-note-error", error text "Напишіть текст нотатки",
-               role="alert" summary "Нотатку не збережено: перевірте поле нижче."
-valid submit:  note "VERIFY-JS-1" shown on the page, role="status" "Нотатку додано.", textarea cleared

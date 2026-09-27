@@ -1,7 +1,7 @@
 # Перевірка (Task A–C)
 
 > Сюди — лише те, що справді сталося. Кожне число має файл-джерело в `docs/evidence/`; сирі
-> транскрипти сесій — `docs/evidence/raw-transcripts.tar.gz`. Прогони A/B і фіча — `docs/ab-validation.md`.
+> транскрипти сесій — `docs/evidence/raw-evidence.tar.gz` (оригінали всіх файлів, зібраних у `summary.md`). Прогони A/B і фіча — `docs/ab-validation.md`.
 
 - **Інструмент і версія, модель:** Claude Code 2.1.282 · `claude-opus-5-5` (`--model opus`), effort `high`
   — з поля `model` в `init` кожного транскрипту
@@ -22,7 +22,7 @@
 ## Скіли видно у свіжій сесії
 
 - Як перевіряли: `claude -p "/context"` з кореня репозиторію, двічі: зі звичайними налаштуваннями
-  (`docs/evidence/task-a/context-after-install.txt`) і з `--setting-sources project --strict-mcp-config`
+  (`docs/evidence/task-a/summary.md`) і з `--setting-sources project --strict-mcp-config`
   (`…/context-project-only.txt`).
 
 | Skill | Звідки | Примітка |
@@ -49,7 +49,7 @@
 заміру: `npm run build` → `next start -p 3000` → прогрів → 3 × `curl` з cookie
 `leaddesk_session=demo-u_olena` (TTFB і total) → лічильники `db:<запит>` з журналу сервера за **один**
 запит сторінки → розмір HTML і RSC → входження полів ліда в HTML → сума JS-скриптів, які HTML сторінки
-вантажить при відкритті (сирий розмір і gzip). Файли `docs/evidence/task-a/00-baseline-main.txt` …
+вантажить при відкритті (сирий розмір і gzip). Файли `docs/evidence/task-a/summary.md` …
 `07-async-suspense-boundaries.txt`; у першому рядку кожного — SHA, `BUILD_ID` збірки й PID сервера.
 
 > **Заміри знято двічі — і ось чому.** Перша серія йшла в робочому дереві: скрипт стартував
@@ -83,7 +83,7 @@ JS на відкритті 1,87 МБ → **0,59 МБ** (gzip 536 → 181 КБ), 
   1,416 с): три виклики з layout, header і page і так ішли паралельно. Він прибирає 4 зайві запити до БД на
   кожне відкриття — це навантаження на базу, а не латентність.
 - **Як переконались, що не зламали.** Після кожного виправлення — `npm run lint` і `tsc --noEmit` (0
-  помилок), замір на продакшн-збірці. Після всіх — прогін у браузері (`docs/evidence/task-a/smoke-browser.txt`):
+  помилок), замір на продакшн-збірці. Після всіх — прогін у браузері (`docs/evidence/task-a/summary.md`):
   5 карток і 172 рядки на місці; графік довантажує окремий чанк лише після кліку (скриптів 9 → 10) і
   малює 6 стовпців; експорт довантажує чанк `exceljs` лише після кліку (10 → 11) і створює
   `leads-2026-09-27.xlsx` на 18 704 Б; помилок у консолі немає.
@@ -123,7 +123,7 @@ JS на відкритті 1,87 МБ → **0,59 МБ** (gzip 536 → 181 КБ), 
 `action.bind(null, id)`». Відправка такої форми **без JavaScript** на сторінці ліда зависає: дія
 виконується (`db:appendLeadNote` є в журналі сервера), але відповідь не починається навіть за 40 с. Так
 само поводився справжній браузер: нативний `HTMLFormElement.submit()` серверної форми повис на навігації.
-Ізоляція в окремому worktree (`docs/evidence/task-b/nojs-isolation.txt`):
+Ізоляція в окремому worktree (`docs/evidence/task-b/summary.md`):
 
 | Варіант | Результат без JS |
 |---|---|
@@ -138,7 +138,7 @@ enhancement»). У зв'язці з `useActionState` на цьому динам�
 використовувати. Захисту `bind` однаково не дає: агент сам написав у run-1, що «the id is still
 client-controlled, so check it here». Діф обох спроб — `run-1/agent.diff`, `run-2/agent.diff`.
 
-**Пункти Verify зі скіла — run-2** (`docs/evidence/task-b/run-2/verify.txt`, скрипт `verify-note-form.sh`;
+**Пункти Verify зі скіла — run-2** (`docs/evidence/task-b/summary.md`, скрипт `verify-note-form.sh`;
 «без JS» — це серверна `<form>` з її прихованими полями `$ACTION_*` і `leadId`, надіслана як multipart без
 заголовка `Next-Action`, тобто так, як її надсилає браузер без JavaScript):
 
@@ -282,7 +282,7 @@ Selftest знайшов у `check-contract.mjs` три баги, які я ви�
 ### На фінальному коді
 
 Після перенесення прогону B і двох комітів доведення (`b6d5a23`, `9ab228f`) вивід такий:
-[`task-d/branch/check-contract-final.txt`](evidence/task-d/branch/check-contract-final.txt).
+[`task-d/branch/check-contract-final.txt`](evidence/task-d/branch/summary.md).
 
 ```
 n8n callers: app/actions.ts, lib/n8n/client.ts · callback routes: app/api/n8n/[event]/route.ts
