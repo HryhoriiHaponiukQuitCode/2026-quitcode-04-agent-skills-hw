@@ -1,0 +1,6 @@
+# before · 77882b5 · action id 603a2cb3f503…
+status before:                          Кваліфікований
+POST without cookie -> lost:            HTTP 307 · status now: Кваліфікований
+POST without cookie to / (no proxy) -> lost: HTTP 200 · status now: Кваліфікований
+POST as marta (brightline) -> won:      HTTP 200 · status now: Угода
+POST as olena (owner) -> contacted:     HTTP 200 · status now: Контакт
