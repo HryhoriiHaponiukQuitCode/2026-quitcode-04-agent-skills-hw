@@ -1,0 +1,6 @@
+claude: 2.1.282 (Claude Code)
+model: opus · effort: high
+prompt sha256: 1fb304acd6c6fb41c030b43cf34794dca34dba726129d78d85a5d69a2b6e3279
+flags: --setting-sources project --strict-mcp-config --permission-mode acceptEdits --permission-prompts none --allowedTools Skill,Read,Grep,Glob,Edit,Write,Bash(npm run lint),Bash(npm run build),Bash(npx tsc --noEmit),Bash(git status*),Bash(git diff*) --disallowedTools WebFetch,WebSearch,NotebookEdit
+started: 2026-09-27T13:14:33Z
+exit: 0 · wall: 102s

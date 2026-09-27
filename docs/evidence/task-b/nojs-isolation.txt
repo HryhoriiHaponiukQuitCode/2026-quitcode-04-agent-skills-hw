@@ -1,0 +1,13 @@
+# Why the no-JS submit of run-1's note form hangs — isolation in a worktree outside the repo
+# (/private/tmp/claude-501/measure-wt at d4a9ca7 + run-1 agent diff), script: nojs-isolation.sh.
+# Each variant: npm run build, next start (owned port), GET lead page, replay the note <form> with
+# its hidden $ACTION_* inputs as multipart (what a browser without JS sends), empty note, 10 s timeout.
+agent-code        (useActionState(addLeadNote.bind(null, leadId)))         -> HTTP 000 after 10.0 s (no headers)
+V1-return-first   (same, action returns {status:"invalid"} as 1st line)   -> HTTP 000 after 10.0 s
+V2-unbound        (useActionState(addLeadNote) + <input type=hidden name=leadId>) -> HTTP 200 in 0.52 s
+# Also seen: real browser, native HTMLFormElement.submit() of the server-rendered form (bypassing React)
+# on run-1 code -> navigation never finished (page stuck loading). Untouched public form on / with the
+# same replay -> HTTP 200 in 0.04 s with field errors, so the replay itself is sound.
+# Conclusion: in Next.js 16.3.5 / React 19.2.8, useActionState with a .bind()-bound Server Action does
+# not survive a no-JS submit on this dynamic route: the action runs (db:appendLeadNote in the server
+# log), the response never starts. The skill told the agent to use .bind -> the skill is fixed.
