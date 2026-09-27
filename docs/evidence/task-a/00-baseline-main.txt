@@ -1,0 +1,25 @@
+# 00-baseline-main · eaf292a · 2026-09-27T12:26:02Z
+## timing (3 runs)
+TTFB 2.244121s, total 2.244646s
+TTFB 2.228519s, total 2.228996s
+TTFB 2.237923s, total 2.238387s
+## db queries for ONE request of /dashboard (console.count delta)
+db:getLeadStats 1
+db:getLeads 1
+db:getSourceBreakdown 1
+db:getUserBySession 3
+db:getWorkspace 3
+## sizes, bytes
+HTML 424592
+RSC  315197
+## lead fields that reach the browser (occurrences in HTML)
+rawPayload 172
+internalNotes 172
+ipAddress 172
+userAgent 344
+acceptLanguage 172
+"phone" 0
+## JS loaded by /dashboard on open (scripts in HTML)
+scripts 10, raw 1871692 B, gzip 536006 B
+## chunks containing exceljs / lodash / recharts markers
+/_next/static/chunks/0m6anbet4hr_s.js 1296173 B: exceljs lodash recharts
