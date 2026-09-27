@@ -603,3 +603,12 @@ hidden inputs in the server-rendered note form: 4 — $ACTION_REF_1 $ACTION_1:0 
   ok   server log has no note text, email or phone (matching lines: 0 of 54)
 result: some Verify items FAIL (exit 1)
 ```
+
+## `task-b/nojs-after-review.txt`
+
+Після рев'ю CodeRabbit `nojs-isolation.sh` підключає `server.sh` зі свого репозиторію. Перевірка на коді run-2 (`9297071` + `run-2/agent.diff`) у тимчасовому worktree; `hidden=10/2` — 5 прихованих полів, по два аргументи `curl` на кожне:
+
+```text
+# nojs-isolation.sh after the CodeRabbit fix (server.sh from this repo) · run-2 code = 9297071 + task-b/run-2/agent.diff in a temp worktree · 2026-09-27T16:43:26Z
+run-2-code: hidden=10/2 HTTP 200 0.532633s
+```

@@ -295,7 +295,7 @@ Task D, крок 1: «BASE узято запізно»). Обидва діфи �
 
 ### Що залишилось у `SKILL.md`, а що пішло в `references/`
 
-Записка має 398 рядків і 12 розділів. `SKILL.md` має 108 рядків: він вантажиться в контекст щоразу, коли скіл
+Записка має 398 рядків і 12 розділів. `SKILL.md` має 107 рядків: він вантажиться в контекст щоразу, коли скіл
 спрацьовує, тому в ньому лише те, що потрібне в кожній задачі:
 
 | У `SKILL.md` | Чому тут |
@@ -310,7 +310,7 @@ Task D, крок 1: «BASE узято запізно»). Обидва діфи �
 |---|---|
 | `contract.md` (143 р.) | Деталі й «чому»: змінні, запит, повтори, колбек по кроках із кодами, ідемпотентність, журнали, ліміти |
 | `response-modes.md` (61 р.) | Режими Webhook, 100 с / 524, що означає кожен код відповіді, тестовий vs production URL, мок |
-| `code-templates.md` (249 р.) | `lib/n8n/client.ts`, сховище, Server Action з `after()` + `redirect()`, колбек-роут `app/api/n8n/[event]/route.ts` |
+| `code-templates.md` (249 р. на момент Task C, 260 у v0.1.3) | `lib/n8n/client.ts`, сховище, Server Action з `after()` + `redirect()`, колбек-роут `app/api/n8n/[event]/route.ts` |
 | `n8n-setup.md` (27 р.) | Налаштування воркфлоу на боці n8n текстом для клієнта |
 
 Між файлами `references/` посилань немає (перевірено grep: 0). Розділи записки 11 («Відомі пастки») і 12
@@ -415,7 +415,7 @@ exit=0
   не змінюється: HMAC там немає;
 - C14 спрацьовує на `error.name`.
 
-Обидві виправлено у v0.1.1 скіла (а C12 і шаблон колбека — у v0.1.2 після рев'ю CodeRabbit, див. останній розділ). Selftest з двома новими кейсами — «all expectations met», exit 0
+Обидві виправлено у v0.1.1 скіла (а C12 і шаблон колбека — у v0.1.2 після рев'ю CodeRabbit, див. розділ «Після рев'ю CodeRabbit»). Selftest з двома новими кейсами — «all expectations met», exit 0
 ([`task-c/selftest.txt`](evidence/task-c/selftest.txt)). На `main` вивід той самий: 3 PASS, 8 FAIL, 4 N/A.
 
 ## Після рев'ю CodeRabbit (PR #10, `@coderabbitai full review`)
@@ -435,7 +435,7 @@ CodeRabbit залишив 11 зауважень і один попереджув
 | 7 | «трьох комітів» у розділі перенесення неоднозначно | названо всі три коміти | `docs/ab-validation.md` | — |
 | 8 | `stop_server` міг убити чужий процес на :3000 | `kill -9` лише якщо власник порту досі `SERVER_PID` | `docs/evidence/bin/server.sh` | усі прогони нижче використовують цей `server.sh` |
 | 9 | Скрипт атаки лише друкує | звіряє статус після кожного POST, exit 1 при дірці | `docs/evidence/task-a/attack-server-actions.sh` | гілка → «protected (exit 0)»; вразливий `77882b5` → «NOT protected (exit 1)», marta змінила статус (`task-a/attack-after-review-*.txt`) |
-| 10 | `nojs-isolation.sh` підключав `server.sh` з тимчасової теки | шлях від розташування скрипта | `docs/evidence/task-b/nojs-isolation.sh` | код run-2 у тимчасовому worktree: HTTP 200 за 0,53 с |
+| 10 | `nojs-isolation.sh` підключав `server.sh` з тимчасової теки | шлях від розташування скрипта | `docs/evidence/task-b/nojs-isolation.sh` | код run-2 (`9297071` + `run-2/agent.diff`) у тимчасовому worktree: HTTP 200 за 0,53 с (`task-b/nojs-after-review.txt`) |
 | 11 | `verify-note-form.sh` лише друкує | кожен пункт — ok/FAIL, exit 1 при FAIL; таймаут = HTTP 000 = FAIL | `docs/evidence/task-b/verify-note-form.sh` | run-2 → 6/6 ok, exit 0; run-1 → FAIL на 3 no-JS пунктах, exit 1 — те саме, що записано в Task B (`task-b/verify-after-review-*.txt`) |
 | — | Pre-merge: в описі PR лишився шаблонний HTML-коментар | коментар прибрано з опису PR | опис PR | — |
 
@@ -506,7 +506,8 @@ GitGuardian у PR перевіряє кожен коміт, а не лише ф�
   про `event`/`status`. Без №1 — 1 FAIL, гонка: знову 40…100 мс. Кожна перевірка ловить свій дефект і лише його.
 - **Скіл:** №1 і №3 дослівно були в шаблонах `references/code-templates.md` v0.1.0, і обидва прогони B переписали
   їх звідти. У v0.1.3 (`c3545ea`) шаблони пишуть статус одним кроком і звіряють `event` з `status`, а коментар до
-  розбору форми задає формат бюджету. Та сама вимога додана в `references/contract.md`, крок 7.
+  розбору форми задає формат бюджету. У `references/contract.md`, крок 7, додано лише вимогу збігу `event` ↔
+  `data.status`.
   `check-contract.mjs` ці дефекти не ловить: вони в логіці статусів, а не в контракті з n8n.
 - **`docs/n8n-integrations.md`:** описано формат `budget` у `data`, вимогу збігу `event` ↔ `status` і правило
   запису `sent`/`failed`.
