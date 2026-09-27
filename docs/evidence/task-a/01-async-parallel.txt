@@ -1,0 +1,25 @@
+# 01-async-parallel · e289c5d · 2026-09-27T13:04:31Z
+## timing (3 runs)
+TTFB 1.428681s, total 1.429171s
+TTFB 1.462557s, total 1.463008s
+TTFB 1.427636s, total 1.428279s
+## db queries for ONE request of /dashboard (console.count delta)
+db:getLeadStats 1
+db:getLeads 1
+db:getSourceBreakdown 1
+db:getUserBySession 3
+db:getWorkspace 3
+## sizes, bytes
+HTML 424592
+RSC  315197
+## lead fields that reach the browser (occurrences in HTML)
+rawPayload 172
+internalNotes 172
+ipAddress 172
+userAgent 344
+acceptLanguage 172
+"phone" 0
+## JS loaded by /dashboard on open (scripts in HTML)
+scripts 10, raw 1871692 B, gzip 536006 B
+## chunks containing exceljs / lodash / recharts markers
+/_next/static/chunks/0m6anbet4hr_s.js 1296173 B: exceljs lodash recharts

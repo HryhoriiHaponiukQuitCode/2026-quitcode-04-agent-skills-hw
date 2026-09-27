@@ -1,0 +1,25 @@
+# 06-bundle-barrel-imports · 035118b · 2026-09-27T13:06:54Z
+## timing (3 runs)
+TTFB 1.427024s, total 1.427305s
+TTFB 1.421958s, total 1.422465s
+TTFB 1.424692s, total 1.425168s
+## db queries for ONE request of /dashboard (console.count delta)
+db:getLeadStats 1
+db:getLeads 1
+db:getSourceBreakdown 1
+db:getUserBySession 1
+db:getWorkspace 1
+## sizes, bytes
+HTML 111057
+RSC  31029
+## lead fields that reach the browser (occurrences in HTML)
+rawPayload 0
+internalNotes 0
+ipAddress 0
+userAgent 0
+acceptLanguage 0
+"phone" 0
+## JS loaded by /dashboard on open (scripts in HTML)
+scripts 9, raw 587212 B, gzip 181271 B
+## chunks containing exceljs / lodash / recharts markers
+/_next/static/chunks/34vu4gm18o5ty.js 12483 B: exceljs

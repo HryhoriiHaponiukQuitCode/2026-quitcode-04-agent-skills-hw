@@ -1,0 +1,25 @@
+# 04-bundle-conditional · 211f8fe · 2026-09-27T13:05:59Z
+## timing (3 runs)
+TTFB 1.428073s, total 1.428361s
+TTFB 1.430793s, total 1.431241s
+TTFB 1.417054s, total 1.417467s
+## db queries for ONE request of /dashboard (console.count delta)
+db:getLeadStats 1
+db:getLeads 1
+db:getSourceBreakdown 1
+db:getUserBySession 1
+db:getWorkspace 1
+## sizes, bytes
+HTML 111377
+RSC  31257
+## lead fields that reach the browser (occurrences in HTML)
+rawPayload 0
+internalNotes 0
+ipAddress 0
+userAgent 0
+acceptLanguage 0
+"phone" 0
+## JS loaded by /dashboard on open (scripts in HTML)
+scripts 10, raw 941001 B, gzip 282121 B
+## chunks containing exceljs / lodash / recharts markers
+/_next/static/chunks/0fe0b9of0kmph.js 365381 B: exceljs recharts
