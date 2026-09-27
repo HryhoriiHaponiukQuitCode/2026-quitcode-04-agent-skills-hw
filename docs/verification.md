@@ -106,7 +106,72 @@ JS на відкритті 1,87 МБ → **0,59 МБ** (gzip 536 → 181 КБ), 
 
 ## Task B — `building-client-form`
 
-_(заповнюється після Task B)_
+- Запит у свіжій сесії (скіл не названо; дослівно з walkthrough, SHA256 `1fb304ac…` однаковий в обох спробах):
+  > На сторінці ліда в дашборді (/dashboard/leads/[id]) додай форму «Додати нотатку»: одне текстове поле
+  > до 500 символів; нотатка дописується до внутрішніх нотаток ліда.
+- Сесія: `docs/evidence/bin/run-scoped-session.sh` — `acceptEdits`, allowlist `Skill, Read, Grep, Glob,
+  Edit, Write, Bash(npm run lint|build), Bash(npx tsc --noEmit), Bash(git status*|diff*)`,
+  `--permission-prompts none`, мережеві інструменти заборонені, `--setting-sources project`.
+
+| Спроба | Скіл | Чи спрацював і як видно | Що зробив агент | Verify |
+|---|---|---|---|---|
+| **run-1** (`d4a9ca7`, скіл 0.1.0) | у сесії: `building-client-form`, `vercel-react-best-practices` + вбудовані | **так, першим же кроком**: у транскрипті інструмент `Skill` → `building-client-form` (крок 1 із 25), ще до читання коду | `lib/lead-note-form.ts` (розбір, 500 символів, відмова замість обрізання), `components/lead-note-form.tsx` (`useActionState`, `aria-*`, `role="alert"`, `values` → `defaultValue`), дія `addLeadNote` (сесія → `authorizeLead` з Task A → валідація → запис → `after(logAudit)` → `{ status }`), `db.appendLeadNote` | **не пройшов** пункт «без JS»: форма зависала. Причина — у скілі (див. нижче) |
+| **run-2** (`9297071`, скіл 0.1.1) | те саме | **так**: `Skill` → `building-client-form` першим кроком (1 із 27) | те саме, але id ліда — приховане поле, а не `.bind`; плюс нормалізація `\r\n` (браузерний `maxLength` рахує перенос за 1 символ, а надсилає 2) | **усі пункти пройшли** (нижче) |
+
+**Що знайшла перша спроба — і що змінено в скілі.** Агент виконав скіл дослівно:
+`useActionState(addLeadNote.bind(null, leadId))`, бо версія 0.1.0 радила «додаткові аргументи —
+`action.bind(null, id)`». Відправка такої форми **без JavaScript** на сторінці ліда зависає: дія
+виконується (`db:appendLeadNote` є в журналі сервера), але відповідь не починається навіть за 40 с. Так
+само поводився справжній браузер: нативний `HTMLFormElement.submit()` серверної форми повис на навігації.
+Ізоляція в окремому worktree (`docs/evidence/task-b/nojs-isolation.txt`):
+
+| Варіант | Результат без JS |
+|---|---|
+| код run-1 (`useActionState(action.bind(null, leadId))`) | HTTP 000, 10 с без заголовків |
+| той самий, дія повертає `invalid` першим рядком | HTTP 000, 10 с — тобто справа не в тілі дії |
+| незв'язана дія + `<input type="hidden" name="leadId">` | **HTTP 200 за 0,52 с** |
+| контроль: наявна форма заявки на `/`, та сама емуляція | HTTP 200 за 0,04 с, з помилками полів |
+
+Документація Next.js 16 каже протилежне (`02-guides/forms.md:127`: «`bind` … supports progressive
+enhancement»). У зв'язці з `useActionState` на цьому динамічному маршруті це не так. Скіл виправлено
+(`9297071`, v0.1.1): id запису — приховане поле з авторизацією в дії; `bind` з `useActionState` не
+використовувати. Захисту `bind` однаково не дає: агент сам написав у run-1, що «the id is still
+client-controlled, so check it here». Діф обох спроб — `run-1/agent.diff`, `run-2/agent.diff`.
+
+**Пункти Verify зі скіла — run-2** (`docs/evidence/task-b/run-2/verify.txt`, скрипт `verify-note-form.sh`;
+«без JS» — це серверна `<form>` з її прихованими полями `$ACTION_*` і `leadId`, надіслана як multipart без
+заголовка `Next-Action`, тобто так, як її надсилає браузер без JavaScript):
+
+| Пункт Verify | Результат |
+|---|---|
+| `npm run lint`, `npm run build` | 0 проблем; збірка успішна (verify-скрипт починається з `npm run build`) |
+| порожня відправка | HTTP 200; `aria-invalid="true"`, `role="alert"`, «Напишіть текст нотатки» — у відповіді |
+| 501 символ | помилка «Не більше 500 символів»; **введений текст лишився** в `<textarea>`; нічого не збережено |
+| відправка без JS, власник | HTTP 200, нотатка на сторінці |
+| дія від імені користувача іншого workspace (`u_marta`) | HTTP 404, нотатки немає |
+| дія без сесії | HTTP 307 на `/login`, нотатки немає |
+| журнал сервера | 0 рядків з текстом нотатки, `@` чи `+380` (з 57 рядків — лише лічильники `db:*`) |
+| з JavaScript, у браузері (`run-2/verify-browser.txt`) | порожня: `aria-invalid`, `aria-describedby="lead-note-error"`, підсумок `role="alert"`; валідна: нотатка на сторінці, `role="status"` «Нотатку додано.» |
+
+**Код з перевірки в гілці не лишив** — свідомо, хоча run-2 пройшов Verify. У ньому є
+`after(() => logAudit(…))` у Server Action, тобто робочий приклад правила `server-after-nonblocking`.
+Потрапивши в BASE для Task D, він дав би агенту в прогоні A частину контракту n8n безкоштовно (walkthrough,
+Task D, крок 1: «BASE узято запізно»). Обидва діфи збережено як доказ.
+
+> **Перший verify був недійсним — і це моя помилка, а не агента.** Скрипт стартував `next start`, але порт
+> 3000 тримав мій старий `next-server` зі збірки ще без форми нотатки: `pkill -f "next start"` його не
+> вбив, бо процес перейменовується. Скрипт не помітив, що його сервер не піднявся, і отримав 500 від
+> старого. Файл лишено як є з позначкою: `run-1/verify-invalid-stale-server.txt`. Після цього всі
+> скрипти стартують сервер через `docs/evidence/bin/server.sh`: він падає, якщо порт зайнятий, і
+> перевіряє PID власника. Через це й перезнята вся серія Task A.
+
+**Що ще видно з транскриптів про межі сесії.** `Bash` поза allowlist усе ж виконувався, якщо команда лише
+читає: пройшли `git ls-files … | head`, `grep …`, `sed -n 1,80p …`, `find app/dashboard`,
+`ls node_modules/next/dist/docs/`, `git diff | grep …`. Відхилено («no approval surface») кожну зв'язку,
+де була хоч одна команда, що запускає чи слухає: `…; python3 -c "…"` (run-1), `…; lsof -iTCP:3457`,
+`npm --prefix … run start -- -p 3457` і `… && ls app/dashboard -R` (run-2). Тобто allowlist звужує запуск і
+запис, але не читання. У run-2 агент, крім скіла, сам прочитав `node_modules/next/dist/docs/…/after.md` і
+`02-guides/forms.md`, як вимагає блок Next.js в `AGENTS.md`.
 
 ## Task C — `integrating-n8n-webhooks`
 

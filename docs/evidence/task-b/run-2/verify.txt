@@ -1,0 +1,9 @@
+# Task B verify · 9297071+dirty · build WezUHKv0AIG2tl71k7TK_ · pid 50836 · 2026-09-27T13:37:49Z
+hidden inputs in the server-rendered note form: 5 — $ACTION_REF_1 $ACTION_1:0 $ACTION_1:1 $ACTION_KEY leadId
+no-JS POST as owner, note 'VERIFY-NOJS-1': HTTP 200 · note on page: 2
+no-JS POST as marta (other workspace), 'VERIFY-MARTA': HTTP 404 · note on page: 0
+no-JS POST without cookie, 'VERIFY-ANON': HTTP 307 · note on page: 0
+no-JS POST as owner, empty note: HTTP 200 · aria-invalid=true: 1 · role=alert: 1 · 'Напишіть текст нотатки': 1
+no-JS POST as owner, 501 chars: HTTP 200 · error 'Не більше 500': 1 · typed text kept in textarea: 1 · saved: 0
+server log lines mentioning the note text or an email/phone: 0
+server log lines total: 57

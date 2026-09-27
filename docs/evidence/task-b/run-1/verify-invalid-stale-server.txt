@@ -1,0 +1,5 @@
+# INVALID — kept on purpose. This run measured a STALE next-server (pid started 16:10:27 local, build 3d3cf84,
+# before the note form existed): the script's own 'next start' failed on the busy port and it went on.
+# All 500s below are that server answering an unknown action. Fixed by docs/evidence/bin/server.sh.
+# Task B verify · d4a9ca7+dirty · build opprIbeHOQSCNbFmv2Av6 · pid 49340 · 2026-09-27T13:22:42Z
+hidden $ACTION inputs found in server HTML: 4
