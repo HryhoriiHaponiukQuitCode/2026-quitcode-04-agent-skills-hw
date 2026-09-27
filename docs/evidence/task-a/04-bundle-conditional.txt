@@ -1,8 +1,8 @@
-# 04-bundle-conditional · 211f8fe · 2026-09-27T13:05:59Z
+# 04-bundle-conditional · 211f8fe · build Wgsgp3AYVm1eG6Jh-UJKB · pid 47536 · 2026-09-27T13:20:40Z
 ## timing (3 runs)
-TTFB 1.428073s, total 1.428361s
-TTFB 1.430793s, total 1.431241s
-TTFB 1.417054s, total 1.417467s
+TTFB 1.415500s, total 1.415592s
+TTFB 1.412876s, total 1.413108s
+TTFB 1.409907s, total 1.410025s
 ## db queries for ONE request of /dashboard (console.count delta)
 db:getLeadStats 1
 db:getLeads 1

@@ -1,8 +1,8 @@
-# 02-server-cache-react · e84f206 · 2026-09-27T13:05:03Z
+# 02-server-cache-react · e84f206 · build _aQCBSnxdCAP7HMmSlaCj · pid 47012 · 2026-09-27T13:20:11Z
 ## timing (3 runs)
-TTFB 1.429472s, total 1.430007s
-TTFB 1.433188s, total 1.434173s
-TTFB 1.429141s, total 1.429711s
+TTFB 1.415265s, total 1.415563s
+TTFB 1.417511s, total 1.417780s
+TTFB 1.412886s, total 1.413145s
 ## db queries for ONE request of /dashboard (console.count delta)
 db:getLeadStats 1
 db:getLeads 1

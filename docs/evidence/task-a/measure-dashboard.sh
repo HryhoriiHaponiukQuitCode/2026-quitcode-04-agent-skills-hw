@@ -11,13 +11,12 @@ C="leaddesk_session=demo-u_olena"
 U=http://localhost:3000/dashboard
 
 npm run build >/dev/null 2>&1
-npx next start -p 3000 >"$LOG" 2>&1 &
-PID=$!
-trap 'kill $PID 2>/dev/null || true; rm -f "$LOG"' EXIT
-for _ in $(seq 1 50); do curl -s -o /dev/null localhost:3000 && break; sleep 0.2; done
+. docs/evidence/bin/server.sh
+start_server "$LOG"
+trap 'stop_server; rm -f "$LOG"' EXIT
 
 {
-  echo "# $LABEL · $(git rev-parse --short HEAD) · $(date -u +%FT%TZ)"
+  echo "# $LABEL · $(git rev-parse --short HEAD)$(git diff --quiet -- app components lib || echo +dirty) · build $BUILD_ID · pid $SERVER_PID · $(date -u +%FT%TZ)"
   curl -s -o /dev/null -b "$C" "$U"   # warm-up
   echo "## timing (3 runs)"
   for i in 1 2 3; do

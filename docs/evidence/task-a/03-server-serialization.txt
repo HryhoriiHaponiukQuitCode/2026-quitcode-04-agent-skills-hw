@@ -1,8 +1,8 @@
-# 03-server-serialization · 281ff34 · 2026-09-27T13:05:33Z
+# 03-server-serialization · 281ff34 · build X3VOWp3neyeb0BCwv3U86 · pid 47273 · 2026-09-27T13:20:26Z
 ## timing (3 runs)
-TTFB 1.420652s, total 1.420851s
-TTFB 1.431084s, total 1.431837s
-TTFB 1.423015s, total 1.423285s
+TTFB 1.411499s, total 1.411629s
+TTFB 1.416366s, total 1.416637s
+TTFB 1.409309s, total 1.409444s
 ## db queries for ONE request of /dashboard (console.count delta)
 db:getLeadStats 1
 db:getLeads 1

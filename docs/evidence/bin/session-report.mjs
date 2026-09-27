@@ -29,14 +29,19 @@ const read = [];
 for (const u of uses) {
   if (u.name === "Read") read.push(pathOf(u));
   if ((u.name === "Grep" || u.name === "Glob") && u.input.path) read.push(u.input.path);
-  if (u.name === "Bash" && SHELL_READ.test(u.input.command ?? "")) read.push(...(u.input.command.match(PATHISH) ?? []));
+  if (u.name === "Bash" && SHELL_READ.test(u.input.command ?? "")) {
+    // The work dir may contain spaces ("Work Folder"): replace it before splitting into path tokens.
+    const cmd = cwd ? u.input.command.split(`"${cwd}"`).join(".").split(cwd).join(".") : u.input.command;
+    read.push(...(cmd.replace(/^cd \. && /, "").match(PATHISH) ?? []));
+  }
 }
 const rel = (p) => (cwd && p.startsWith(cwd + "/") ? p.slice(cwd.length + 1) : p);
 const outside = [...new Set(read.filter((p) => {
   const abs = isAbsolute(p) ? p : resolve(cwd, p);
   return cwd && !(abs === cwd || abs.startsWith(cwd + "/")) && !abs.includes("/node_modules/");
 }))];
-const bashOutside = uses.filter((u) => u.name === "Bash" && /(^|\s)(\.\.\/|~\/|\/Users\/)/.test(u.input.command ?? ""))
+const bashOutside = uses.filter((u) => u.name === "Bash" &&
+    /(^|[\s"'])(\.\.\/|~\/|\/Users\/)/.test(cwd ? u.input.command.split(cwd).join(".") : u.input.command ?? ""))
   .map((u) => u.input.command.slice(0, 160));
 
 const skillCalls = uses.filter((u) => u.name === "Skill").map((u) => u.input.skill ?? u.input.command ?? JSON.stringify(u.input));

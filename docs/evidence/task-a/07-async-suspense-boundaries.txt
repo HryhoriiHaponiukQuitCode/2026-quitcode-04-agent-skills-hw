@@ -1,8 +1,8 @@
-# 07-async-suspense-boundaries · 3d3cf84 · 2026-09-27T13:09:50Z
+# 07-async-suspense-boundaries · 3d3cf84 · build 0UZUIOhCmBzHQmrDB34u1 · pid 48297 · 2026-09-27T13:21:22Z
 ## timing (3 runs)
-TTFB 0.628354s, total 1.415054s
-TTFB 0.631327s, total 1.414049s
-TTFB 0.623312s, total 1.414400s
+TTFB 0.611640s, total 1.407296s
+TTFB 0.613363s, total 1.406939s
+TTFB 0.610092s, total 1.405991s
 ## db queries for ONE request of /dashboard (console.count delta)
 db:getLeadStats 1
 db:getLeads 1

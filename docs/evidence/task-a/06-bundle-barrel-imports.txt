@@ -1,8 +1,8 @@
-# 06-bundle-barrel-imports · 035118b · 2026-09-27T13:06:54Z
+# 06-bundle-barrel-imports · 035118b · build piG75uX_smcYfzxJMwg7x · pid 48047 · 2026-09-27T13:21:09Z
 ## timing (3 runs)
-TTFB 1.427024s, total 1.427305s
-TTFB 1.421958s, total 1.422465s
-TTFB 1.424692s, total 1.425168s
+TTFB 1.412231s, total 1.412369s
+TTFB 1.411785s, total 1.412020s
+TTFB 1.409859s, total 1.410074s
 ## db queries for ONE request of /dashboard (console.count delta)
 db:getLeadStats 1
 db:getLeads 1

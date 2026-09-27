@@ -6,10 +6,9 @@ set -euo pipefail
 OUT="docs/evidence/task-a/attack-$1.txt"
 LOG=$(mktemp)
 npm run build >/dev/null 2>&1
-npx next start -p 3000 >"$LOG" 2>&1 &
-PID=$!
-trap 'kill $PID 2>/dev/null || true; rm -f "$LOG"' EXIT
-for _ in $(seq 1 50); do curl -s -o /dev/null localhost:3000 && break; sleep 0.2; done
+. docs/evidence/bin/server.sh
+start_server "$LOG"
+trap 'stop_server; rm -f "$LOG"' EXIT
 
 # Action id of updateLeadStatus from the build's server reference manifest.
 ID=$(node -e '
@@ -25,7 +24,7 @@ call() { # $1 = cookie header value or empty, $2 = status to set, $3 = path to P
     ${1:+-H "Cookie: $1"} --data "[\"lead_0001\",\"$2\"]"
 }
 {
-  echo "# $1 · $(git rev-parse --short HEAD)$(git diff --quiet || echo '+dirty') · action id ${ID:0:12}…"
+  echo "# $1 · $(git rev-parse --short HEAD) · build $BUILD_ID · pid $SERVER_PID · action id ${ID:0:12}…"
   echo "status before:                          $(status)"
   echo "POST without cookie -> lost:            HTTP $(call '' lost) · status now: $(status)"
   echo "POST without cookie to / (no proxy) -> lost: HTTP $(call '' lost /) · status now: $(status)"

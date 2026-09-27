@@ -1,8 +1,8 @@
-# 00-baseline-main · eaf292a · 2026-09-27T12:26:02Z
+# 00-baseline-main · 01a7dd4 · build j5UOFtEwloa5kpSJ-ELuY · pid 46485 · 2026-09-27T13:19:38Z
 ## timing (3 runs)
-TTFB 2.244121s, total 2.244646s
-TTFB 2.228519s, total 2.228996s
-TTFB 2.237923s, total 2.238387s
+TTFB 2.219355s, total 2.219667s
+TTFB 2.220246s, total 2.220612s
+TTFB 2.217306s, total 2.217513s
 ## db queries for ONE request of /dashboard (console.count delta)
 db:getLeadStats 1
 db:getLeads 1
