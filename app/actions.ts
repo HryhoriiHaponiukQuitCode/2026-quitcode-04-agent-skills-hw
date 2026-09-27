@@ -1,9 +1,12 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { headers } from "next/headers";
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
+import { triggerWorkflow } from "@/lib/n8n/client";
 import { getCurrentUser, getWorkspace } from "@/lib/data";
 import { parseLeadForm, type LeadFormField } from "@/lib/lead-form";
 import { LEAD_STATUSES, type LeadStatus } from "@/lib/types";
@@ -51,15 +54,32 @@ export async function submitLead(
     },
   });
 
-  try {
-    await fetch(process.env.N8N_WEBHOOK_URL!, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(lead),
-    });
-  } catch (error) {
-    console.error(`Failed to send lead ${lead.id} to n8n`, error);
-  }
+  // The visitor does not wait for n8n (server-after-nonblocking). Only what the CRM workflow needs goes
+  // out: no IP, user agent, raw payload or internal fields. The key is derived from the lead, so a
+  // retry of the same lead is recognised by n8n as a repeat.
+  after(async () => {
+    try {
+      await triggerWorkflow(
+        "lead-created",
+        {
+          leadId: lead.id,
+          firstName: lead.firstName,
+          lastName: lead.lastName,
+          email: lead.email,
+          phone: lead.phone,
+          company: lead.company,
+          website: lead.website,
+          message: lead.message,
+          consentMarketing: lead.consentMarketing,
+        },
+        { idempotencyKey: `lead-created:${lead.id}`, correlationId: randomUUID() },
+      );
+      // triggerWorkflow logs the status of every attempt itself (event, correlation id, status, ms).
+    } catch (error) {
+      const reason = error instanceof Error ? error.name : "error"; // never the message: it may echo config
+      console.error(`Failed to send lead ${lead.id} to n8n: ${reason}`);
+    }
+  });
 
   await logAudit("lead.created", lead.id);
 
