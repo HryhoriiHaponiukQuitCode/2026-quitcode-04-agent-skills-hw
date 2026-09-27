@@ -101,7 +101,7 @@ export async function POST(request: Request, ctx: RouteContext<"/api/n8n/[event]
       typeof d?.jobId === "string" &&
       typeof d?.requestIdempotencyKey === "string" &&
       (d.status === "completed" || d.status === "failed") &&
-      (body.event === `${event}.completed` || body.event === `${event}.failed`);
+      body.event === `${event}.${d.status}`; // the event suffix and data.status must agree
     if (!shapeOk || key !== `${d.jobId}:${body.event}`) {
       await db.releaseCallbackKey(key);
       return done(400);
