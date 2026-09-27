@@ -238,9 +238,15 @@
   2. `9ab228f` **chore(env): прибрати `/webhook-test/` з `.env.example`**, файл `.env.example`. Змінну `N8N_WEBHOOK_URL` більше
      ніхто не читає (C1).
 
-  Після цих трьох комітів **код гілки поза прогоном B змінено лише в `app/actions.ts` і `.env.example`**.
-  Усі інші файли застосунку, яких торкається Task D, — рівно файли прогону b1. Окремо, у коміті `5b15a8b`,
-  змінено сам скіл (v0.1.1: `SKILL.md`, `scripts/check-contract.mjs`, `scripts/selftest-check-contract.mjs`).
+  Після трьох комітів — перенесення `8c7705f` і двох доведень `b6d5a23`, `9ab228f` — **код гілки поза прогоном B
+  змінено лише в `app/actions.ts` і `.env.example`**. Усі інші файли застосунку, яких торкається Task D, — рівно
+  файли прогону b1. Окремо, у коміті `5b15a8b`, змінено сам скіл (v0.1.1: `SKILL.md`, `scripts/check-contract.mjs`,
+  `scripts/selftest-check-contract.mjs`).
+
+  **Після рев'ю CodeRabbit** (PR #10) доправлено ще два файли прогону b1 — `components/quote-form.tsx` (доступні
+  помилки полів) і `components/auto-refresh.tsx` (ліміт оновлень) — та `app/actions.ts` (запис `lead.n8n_failed`).
+  Діф `docs/ab/b-with-skill.diff` лишився таким, яким його зробив агент; що і чому змінено після — таблиця
+  «Після рев'ю CodeRabbit» у `docs/verification.md`.
 
   **Чому скіл цього не дав.** Агент B свідомо не чіпав код поза задачею, і це правильно. Обидва повтори
   знайшли порушення в старому коді `check-contract`-ом, назвали їх і запропонували окрему зміну. Межа скіла

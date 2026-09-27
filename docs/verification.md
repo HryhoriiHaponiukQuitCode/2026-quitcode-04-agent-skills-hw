@@ -400,5 +400,31 @@ exit=0
   не змінюється: HMAC там немає;
 - C14 спрацьовує на `error.name`.
 
-Обидві виправлено у v0.1.1 скіла. Selftest з двома новими кейсами — «all expectations met», exit 0
+Обидві виправлено у v0.1.1 скіла (а C12 і шаблон колбека — у v0.1.2 після рев'ю CodeRabbit, див. останній розділ). Selftest з двома новими кейсами — «all expectations met», exit 0
 ([`task-c/selftest.txt`](evidence/task-c/selftest.txt)). На `main` вивід той самий: 3 PASS, 8 FAIL, 4 N/A.
+
+## Після рев'ю CodeRabbit (PR #10, `@coderabbitai full review`)
+
+CodeRabbit залишив 11 зауважень і один попереджувальний pre-merge check. Решта 10 checks — зелені, серед них Task A–E і
+«Protected Paths And Secrets». Кожне зауваження я звірив з кодом перед правкою. Жодне не виявилось хибним, а одне
+(формат `lead-created`) — це процесне рішення, не код.
+
+| # | Зауваження | Що зроблено | Файли | Як перевірено |
+|---|---|---|---|---|
+| 1 | Шаблон колбека зберігає `documentUrl` без перевірки схеми | у шаблон додано `safeDocumentUrl` (лише `https:`), як у робочому роуті | `.claude/skills/integrating-n8n-webhooks/references/code-templates.md` | selftest складає «хороший» проєкт із цього шаблону: «all expectations met» |
+| 2 | C12 проходить, якщо `jobId` лише згаданий | C12 тепер вимагає порівняння `===`/`!==` ключа з `` `${…jobId…}:${…}` `` | `scripts/check-contract.mjs`, `scripts/selftest-check-contract.mjs` (+1 фікстура: `jobId` є, звірки немає → FAIL) | selftest ✓; гілка 15/0; прогони: A1/A2 C12 FAIL, B1/B2 PASS — вердикти у звітах не змінились |
+| 3 | Невдала доставка `lead-created` губиться | при `ok: false` або винятку — запис аудиту `lead.n8n_failed` (наявний `logAudit`), за ним лід можна надіслати знову з тим самим ключем | `app/actions.ts` | n8n вимкнено: 3 спроби, потім `db:insertAuditEntry: 2`; форма 0,44 с (`task-d/branch/lead-created-n8n-down.txt`) |
+| 4 | Формат `lead-created` треба погодити з власником workflow | код не змінювали; вимога записана в коді й у `docs/n8n-integrations.md` | `app/actions.ts` (коментар), `docs/n8n-integrations.md` | — (процесне рішення людини) |
+| 5 | Автооновлення без межі | не більше 60 оновлень (5 хв при кроці 5 с) | `components/auto-refresh.tsx` | `lint`, `build`; сценарій на гілці ✓ |
+| 6 | Помилки полів форми кошторису недоступні скрінрідеру | `label htmlFor`, `aria-invalid`, `aria-describedby="quote-<поле>-error"`, підсумок `role="alert"` — крок 5 скіла `building-client-form` | `components/quote-form.tsx` | порожня відправка без JS: 4 × `aria-invalid`, 4 id помилок, `role="alert"` (`task-d/branch/quote-form-a11y.txt`); сценарій 303 за 0,136 с |
+| 7 | «трьох комітів» у розділі перенесення неоднозначно | названо всі три коміти | `docs/ab-validation.md` | — |
+| 8 | `stop_server` міг убити чужий процес на :3000 | `kill -9` лише якщо власник порту досі `SERVER_PID` | `docs/evidence/bin/server.sh` | усі прогони нижче використовують цей `server.sh` |
+| 9 | Скрипт атаки лише друкує | звіряє статус після кожного POST, exit 1 при дірці | `docs/evidence/task-a/attack-server-actions.sh` | гілка → «protected (exit 0)»; вразливий `77882b5` → «NOT protected (exit 1)», marta змінила статус (`task-a/attack-after-review-*.txt`) |
+| 10 | `nojs-isolation.sh` підключав `server.sh` з тимчасової теки | шлях від розташування скрипта | `docs/evidence/task-b/nojs-isolation.sh` | код run-2 у тимчасовому worktree: HTTP 200 за 0,53 с |
+| 11 | `verify-note-form.sh` лише друкує | кожен пункт — ok/FAIL, exit 1 при FAIL; таймаут = HTTP 000 = FAIL | `docs/evidence/task-b/verify-note-form.sh` | run-2 → 6/6 ok, exit 0; run-1 → FAIL на 3 no-JS пунктах, exit 1 — те саме, що записано в Task B (`task-b/verify-after-review-*.txt`) |
+| — | Pre-merge: в описі PR лишився шаблонний HTML-коментар | коментар прибрано з опису PR | опис PR | — |
+
+Скіл n8n після цього — v0.1.2 (п. 1–2). Попутно прибрано невикористаний імпорт у `docs/evidence/bin/pack-evidence.mjs`
+(єдине попередження `npm run lint`). Після всіх правок: `npm run lint` — 0 проблем, `npm run build` ✓,
+`check-contract.mjs` — 15 PASS / 0 FAIL, selftest — «all expectations met».
+
