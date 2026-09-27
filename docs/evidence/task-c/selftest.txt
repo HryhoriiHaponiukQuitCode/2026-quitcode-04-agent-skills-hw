@@ -1,4 +1,4 @@
-$ node .claude/skills/integrating-n8n-webhooks/scripts/selftest-check-contract.mjs
+$ node .claude/skills/integrating-n8n-webhooks/scripts/selftest-check-contract.mjs   # v0.1.1
 ok   templates from code-templates.md: every check PASS, exit 0
 ok   C1 broken on purpose -> C1 FAIL, exit 1
 ok   C2 broken on purpose -> C2 FAIL, exit 1
@@ -15,6 +15,8 @@ ok   C12 broken on purpose -> C12 FAIL, exit 1
 ok   C13 broken on purpose -> C13 FAIL, exit 1
 ok   C14 broken on purpose -> C14 FAIL, exit 1
 ok   C15 broken on purpose -> C15 FAIL, exit 1
+ok   C14 is not tripped by console.error(error.name)
+ok   C14 still FAILs on console.error(body.name)
 ok   --changed-since, nothing changed: old legacy.ts violations ignored, exit 0
 ok   --changed-since, new file with a test URL: C1 FAIL reported at app/new-feature.ts:2
 ok   same tree without --changed-since: legacy.ts reported too

@@ -93,6 +93,17 @@ for (const [id, change] of cases) {
     r.status[id] === "FAIL" && r.code === 1, r.out);
 }
 
+// 2b. Known false positive, found on the Task D code: logging error.name is not a data leak
+{
+  const withName = route.replace("const raw = await request.text();",
+    "const raw = await request.text();\n  try { JSON.parse(\"{\"); } catch (error) { console.error(`callback parse: ${error instanceof Error ? error.name : \"error\"}`); }");
+  const r = run(project("ok-C14-error-name", { ...good, "app/api/n8n/[event]/route.ts": withName }));
+  expect("C14 is not tripped by console.error(error.name)", r.status.C14 === "PASS", r.out);
+  const withLead = route.replace("const raw = await request.text();", "const raw = await request.text();\n  console.error(\"lead\", body.name);");
+  const r2 = run(project("bad-C14-name", { ...good, "app/api/n8n/[event]/route.ts": withLead }));
+  expect("C14 still FAILs on console.error(body.name)", r2.status.C14 === "FAIL", r2.out);
+}
+
 // 3. --changed-since
 {
   const root = project("changed", {

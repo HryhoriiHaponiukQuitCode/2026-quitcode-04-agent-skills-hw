@@ -288,8 +288,8 @@ check("C9", "callback route reads the raw body; no request.json(), no JSON.parse
 check("C10", "callback signature: HMAC + length check + timingSafeEqual, never ===", (fail) => {
   if (!callbackRoutes.length) return false;
   for (const f of callbackRoutes) {
-    if (!/createHmac\s*\(/.test(f.text)) fail(f, 0, "no HMAC computed");
-    if (!/timingSafeEqual\s*\(/.test(f.text)) fail(f, 0, "no timingSafeEqual");
+    if (!/createHmac\s*\(/.test(f.text)) fail(f, 0, "no HMAC computed in the route file");
+    if (!/timingSafeEqual\s*\(/.test(f.text)) fail(f, 0, "no timingSafeEqual in the route file (helpers it imports are not followed)");
     else if (!/\.length\s*[!=]==/.test(f.text) && !/[!=]==\s*\w+\.length/.test(f.text)) fail(f, 0, "no length check before timingSafeEqual");
     f.lines.forEach((l, i) => {
       if (/signature|digest|hmac/i.test(l) && /[!=]==/.test(l) && !/\.length\s*[!=]==|[!=]==\s*\w+\.length|typeof/.test(l) && !isComment(l)) {
@@ -326,7 +326,8 @@ check("C14", "no bodies, form data, personal data, tokens or signatures in conso
   if (!scope.length) return false;
   const LOGGED = /formData|\braw\b|\bbody\b|payload|email|phone|token|secret|signature|headers\b|fullName|\bname\b/i;
   for (const f of scope) for (const m of f.text.matchAll(/console\.(log|info|warn|error|debug)\s*\(/g)) {
-    const text = callText(f.text, m.index + m[0].length - 1);
+    // error.name is the class of the error ("TimeoutError"), not data: it may be logged
+    const text = callText(f.text, m.index + m[0].length - 1).replace(/\b(?:err|error|e)\.name\b/g, "");
     if (LOGGED.test(text)) fail(f, lineOf(f, m.index), "log call may print a body, personal data or a secret");
   }
 });

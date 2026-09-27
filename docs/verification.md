@@ -294,3 +294,6 @@ exit=0
 - C10 шукає `timingSafeEqual` лише у файлі роуту, а в прогонах A він лежить у `lib/`. Вердикт FAIL від цього
   не змінюється: HMAC там немає;
 - C14 спрацьовує на `error.name`.
+
+Обидві виправлено у v0.1.1 скіла. Selftest з двома новими кейсами — «all expectations met», exit 0
+([`task-c/selftest.txt`](evidence/task-c/selftest.txt)). На `main` вивід той самий: 3 PASS, 8 FAIL, 4 N/A.
