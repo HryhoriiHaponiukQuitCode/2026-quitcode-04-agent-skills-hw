@@ -158,13 +158,23 @@ type Callback = {
   data: { jobId: string; status: "completed" | "failed"; requestIdempotencyKey: string;
           result?: { documentUrl?: string }; error?: { code?: string } };
 };
+// The status page renders documentUrl as a link: keep only https URLs from the callback.
+function safeDocumentUrl(value: unknown): string | null {
+  if (typeof value !== "string" || value.length > 2048) return null;
+  try {
+    return new URL(value).protocol === "https:" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 // One handler per event; returns false if the record does not exist.
 const HANDLERS: Record<string, (data: Callback["data"]) => Promise<boolean>> = {
   "quote-request": async (data) => {
     const quote = await db.getQuoteByRequestKey(data.requestIdempotencyKey);
     if (!quote) return false;
     await db.updateQuote(quote.id, data.status === "completed"
-      ? { status: "ready", documentUrl: data.result?.documentUrl ?? null }
+      ? { status: "ready", documentUrl: safeDocumentUrl(data.result?.documentUrl) }
       : { status: "failed" });
     return true;
   },

@@ -307,11 +307,17 @@ check("C11", "callback timestamp checked against a 300 s window", (fail) => {
   }
 });
 
+const KEY_BOUND = new RegExp([
+  String.raw`[!=]==\s*\`\$\{[^}\`]*jobId[^}\`]*\}:\$\{[^}\`]+\}\``,   // key !== `${d.jobId}:${body.event}`
+  String.raw`\`\$\{[^}\`]*jobId[^}\`]*\}:\$\{[^}\`]+\}\`\s*[!=]==`,   // `${d.jobId}:${body.event}` === key
+  String.raw`[!=]==\s*[\w.?]*jobId\s*\+\s*["']:["']\s*\+`,               // key === d.jobId + ":" + event
+].join("|"));
 check("C12", "callback idempotency-key read and bound to data.jobId of the signed body", (fail) => {
   if (!callbackRoutes.length) return false;
   for (const f of callbackRoutes) {
     if (!/idempotency-key/i.test(f.text)) fail(f, 0, "idempotency-key is not read");
-    else if (!/jobId/.test(f.text)) fail(f, 0, "idempotency-key is not compared with data.jobId");
+    // the key must be COMPARED with "<jobId>:<event>" built from the signed body, not just mentioned next to it
+    else if (!KEY_BOUND.test(f.text)) fail(f, 0, "idempotency-key is not compared (=== / !==) with `${jobId}:${event}` of the signed body");
   }
 });
 

@@ -81,6 +81,8 @@ const cases = [
     'if (request.headers.get("x-n8n-signature") !== expected.toString()) return done(401);').replace("timingSafeEqual", "timingSafe") }],
   ["C11", { "app/api/n8n/[event]/route.ts": route.replace("const WINDOW_SECONDS = 300;", "const WINDOW_SECONDS = 86_400;") }],
   ["C12", { "app/api/n8n/[event]/route.ts": route.replaceAll("jobId", "job") }],
+  // mentions jobId, but never compares the key with it: the key is only checked for being present
+  ["C12", { "app/api/n8n/[event]/route.ts": route.replace("if (!shapeOk || key !== `${d.jobId}:${body.event}`) {", "if (!shapeOk) {") }],
   ["C13", { "app/api/n8n/[event]/route.ts": 'export const runtime = "edge";\n' + route }],
   ["C14", { "app/api/n8n/[event]/route.ts": route.replace("const raw = await request.text();", "const raw = await request.text();\n  console.log(\"callback\", raw);") }],
   // a real-looking secret, generated at run time: a secret-like literal in git trips secret scanners
