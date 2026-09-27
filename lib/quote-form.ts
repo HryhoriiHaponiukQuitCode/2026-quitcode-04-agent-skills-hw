@@ -15,6 +15,9 @@ export type QuoteParseResult =
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_BUDGET = 10_000_000;
+// Whole dollars, optionally split by spaces ("1 500"), and at most 2 decimals after "." or ",". A comma is
+// only a decimal separator: "1,500" and "1,2,3" are ambiguous and get a form error instead of a guess.
+const BUDGET_RE = /^\d+(?:[.,]\d{1,2})?$/;
 
 function text(formData: FormData, name: QuoteFormField, max: number) {
   const value = formData.get(name);
@@ -26,7 +29,7 @@ export function parseQuoteForm(formData: FormData): QuoteParseResult {
     company: text(formData, "company", 120),
     email: text(formData, "email", 200).toLowerCase(),
     description: text(formData, "description", 4000),
-    budget: text(formData, "budget", 12).replace(/[\s,]/g, ""),
+    budget: text(formData, "budget", 32),
   };
 
   const errors: Partial<Record<QuoteFormField, string>> = {};
@@ -37,9 +40,10 @@ export function parseQuoteForm(formData: FormData): QuoteParseResult {
 
   let budget: number | null = null;
   if (values.budget) {
-    budget = Number(values.budget);
-    if (!Number.isFinite(budget) || budget < 0 || budget > MAX_BUDGET) {
-      errors.budget = "Вкажіть бюджет числом у доларах";
+    const normalized = values.budget.replace(/\s/g, "");
+    budget = BUDGET_RE.test(normalized) ? Number(normalized.replace(",", ".")) : NaN;
+    if (!Number.isFinite(budget) || budget > MAX_BUDGET) {
+      errors.budget = "Вкажіть бюджет числом у доларах, наприклад 1500 або 1500,50";
     }
   }
 
@@ -50,7 +54,7 @@ export function parseQuoteForm(formData: FormData): QuoteParseResult {
       company: values.company,
       email: values.email,
       description: values.description,
-      budget: budget === null ? null : Math.round(budget),
+      budget,
     },
   };
 }

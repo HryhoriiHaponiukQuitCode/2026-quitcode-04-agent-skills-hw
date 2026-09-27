@@ -60,7 +60,7 @@ export function QuoteForm() {
         <input
           id="quote-budget"
           name="budget"
-          inputMode="numeric"
+          inputMode="decimal"
           placeholder="Необов'язково"
           defaultValue={values?.budget}
           className={inputClass}
