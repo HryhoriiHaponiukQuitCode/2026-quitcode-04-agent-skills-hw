@@ -29,7 +29,7 @@ export function parseQuoteForm(formData: FormData): QuoteParseResult {
     company: text(formData, "company", 120),
     email: text(formData, "email", 200).toLowerCase(),
     description: text(formData, "description", 4000),
-    budget: text(formData, "budget", 32),
+    budget: text(formData, "budget", 33), // one over the limit: longer input is an error, not cut to fit
   };
 
   const errors: Partial<Record<QuoteFormField, string>> = {};
@@ -39,7 +39,9 @@ export function parseQuoteForm(formData: FormData): QuoteParseResult {
   if (values.description.length < 20) errors.description = "Опишіть задачу докладніше (від 20 символів)";
 
   let budget: number | null = null;
-  if (values.budget) {
+  if (values.budget.length > 32) {
+    errors.budget = "Вкажіть бюджет числом у доларах, наприклад 1500 або 1500,50";
+  } else if (values.budget) {
     const normalized = values.budget.replace(/\s/g, "");
     budget = BUDGET_RE.test(normalized) ? Number(normalized.replace(",", ".")) : NaN;
     if (!Number.isFinite(budget) || budget > MAX_BUDGET) {
