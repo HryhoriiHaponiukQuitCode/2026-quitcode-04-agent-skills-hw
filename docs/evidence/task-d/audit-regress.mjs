@@ -2,7 +2,9 @@
 // Regression checks for three defects found by an audit of the quote feature (Task D):
 //   1. budget: "1500,50" became 150050, "1,2,3" became 123 — commas were stripped instead of parsed;
 //   2. callback: a signed "quote-request.completed" with data.status "failed" was accepted (202);
-//   3. race: a callback that sets "ready" between after()'s status read and its write was overwritten with "sent".
+//   3. race: a callback that sets "ready" between after()'s status read and its write was overwritten with "sent";
+//   4. (code review) a later "failed" callback of another n8n execution turned a ready quote into failed;
+//   5. (code review) an over-long budget was cut to 32 characters first and then accepted as a different number.
 // Needs the app on :3000 started with N8N_WEBHOOK_BASE_URL=http://127.0.0.1:5679/webhook and test values of
 // N8N_WEBHOOK_TOKEN / N8N_CALLBACK_SECRET in the environment (audit-regress.sh does that). This script plays
 // n8n on :5679. No secret value is printed. Exit 1 on any FAIL.
@@ -89,6 +91,7 @@ console.log("# 1. budget parsing (value that reached n8n, or a form error)");
 const BUDGETS = [
   ["1500", 1500], ["1 500", 1500], ["1500,50", 1500.5], ["1500.50", 1500.5], ["1 500,5", 1500.5], ["", null],
   ["1,2,3", "error"], ["1,500", "error"], ["1e3", "error"], ["0x10", "error"], ["-5", "error"], ["12345678901234", "error"],
+  ["5" + " ".repeat(31) + "0", "error"], // 33 characters: must not be cut to "5"
 ];
 for (const [input, want] of BUDGETS) {
   const r = await submitQuote(input);
@@ -108,6 +111,7 @@ for (const [event, status, want] of [
 ]) {
   const r = await submitQuote("1000");
   const got = await waitReceived(r.id);
+  if (!got) { check(`${event} + status "${status}" -> ${want}`, false, "the quote never reached n8n"); continue; }
   await sleep(300); // let after() finish its own status write first
   const code = await signedCallback(got.callbackUrl, got.requestKey, { event, status });
   check(`${event} + status "${status}" -> ${want}`, code === want, `got ${code}, page: ${await statusTitle(r.id)}`);
@@ -120,7 +124,7 @@ for (let d = 0; d <= 400; d += 20) {
   raceDelayMs = d;
   const r = await submitQuote("1000");
   const got = await waitReceived(r.id);
-  raced.push({ d, id: r.id, callback: got.callback });
+  raced.push({ d, id: r.id, callback: got?.callback ?? Promise.resolve("not received") });
 }
 raceDelayMs = null;
 await sleep(1500);
@@ -130,6 +134,22 @@ for (const q of raced) {
   if (code !== 202 || title !== "Кошторис готовий") lost.push(`${q.d} ms: callback ${code}, page "${title}"`);
 }
 check(`${raced.length} quotes with a completed callback all end "Кошторис готовий"`, lost.length === 0, lost.join("; "));
+
+// ---- 4. a ready quote stays ready ------------------------------------------------------------------------
+console.log("# 4. a failed callback of another n8n execution after a completed one");
+{
+  const r = await submitQuote("1000");
+  const got = await waitReceived(r.id);
+  if (!got) check("ready quote stays ready", false, "the quote never reached n8n");
+  else {
+    await sleep(300);
+    const first = await signedCallback(got.callbackUrl, got.requestKey, { event: "quote-request.completed", status: "completed" });
+    const second = await signedCallback(got.callbackUrl, got.requestKey, { event: "quote-request.failed", status: "failed" });
+    const title = await statusTitle(r.id);
+    check("completed, then failed (new jobId) -> page still \"Кошторис готовий\"", title === "Кошторис готовий",
+      `callbacks ${first}, ${second}; page "${title}"`);
+  }
+}
 
 n8n.close();
 console.log(`result: ${okCount} ok, ${failCount} FAIL`);

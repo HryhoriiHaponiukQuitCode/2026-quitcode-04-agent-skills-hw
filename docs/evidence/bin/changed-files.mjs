@@ -3,7 +3,7 @@
 //   node docs/evidence/bin/changed-files.mjs            print the markdown table
 //   node docs/evidence/bin/changed-files.mjs --write    replace the table between the markers in docs/verification.md
 //   node docs/evidence/bin/changed-files.mjs --check    exit 1 if that table differs from the current diff
-// Source of truth: `git diff --name-status main...HEAD` and `git log main..HEAD -- <file>`. A changed file
+// Source of truth: `git diff --name-status --no-renames main...HEAD` (a rename = deleted + added row) and `git log main..HEAD -- <file>`. A changed file
 // without a description below makes the script fail: new changes must be described before they are listed.
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -58,7 +58,7 @@ const RULES = [
 ];
 
 const STATUS = { A: "додано", M: "змінено", D: "видалено" };
-const rows = git("diff", "--name-status", "main...HEAD").split("\n").filter(Boolean).map((l) => {
+const rows = git("diff", "--name-status", "--no-renames", "main...HEAD").split("\n").filter(Boolean).map((l) => {
   const [st, file] = l.split("\t");
   const rule = RULES.find(([re]) => re.test(file));
   if (!rule) { console.error(`NO DESCRIPTION for changed file: ${file} — add it to RULES first`); process.exit(2); }
@@ -81,7 +81,7 @@ if (vendored.length) {
 const code = rows.filter((r) => /^(app|components|lib)\//.test(r.file) || r.file === ".env.example").length;
 const table = [
   START,
-  `Згенеровано \`node docs/evidence/bin/changed-files.mjs --write\` з \`git diff --name-status main...HEAD\`; ` +
+  `Згенеровано \`node docs/evidence/bin/changed-files.mjs --write\` з \`git diff --name-status --no-renames main...HEAD\`; ` +
     `\`--check\` падає, якщо таблиця розійшлась із діфом. **Усього ${rows.length} файлів**: код застосунку й \`.env.example\` — ${code}, ` +
     `вендорений скіл Vercel — ${rows.filter((r) => r.file.startsWith(".claude/skills/vercel-react-best-practices/")).length}, ` +
     `власні скіли — ${rows.filter((r) => /^\.claude\/skills\/(building-client-form|integrating-n8n-webhooks)\//.test(r.file)).length}, ` +
